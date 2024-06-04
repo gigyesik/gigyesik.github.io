@@ -1,6 +1,6 @@
-# The Site Configuration
+# 사이트 설정
 
-# Import the theme
+# 테마 Import
 theme: jekyll-theme-chirpy
 
 # The language of the webpage › http://www.lingoes.net/en/translator/langcode.htm
