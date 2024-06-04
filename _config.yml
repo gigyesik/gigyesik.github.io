@@ -91,8 +91,8 @@ theme_mode: dark
 # e.g. 'https://cdn.com'
 cdn:
 
-# the avatar on sidebar, support local or CORS resources
-avatar:
+# 사이드바의 아바타 이미지. 로컬 또는 CORS 경로 지원
+avatar: assets/img/profile.jpeg
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.
