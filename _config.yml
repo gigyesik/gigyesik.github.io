@@ -27,9 +27,8 @@ tagline: gigyesik의 블로그
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
 
-# Fill in the protocol & hostname for your site.
-# e.g. 'https://username.github.io', note that it does not end with a '/'.
-url: ""
+# 호스트 정보
+url: https://gigyesik.github.io
 
 # github 계정
 github:
@@ -62,7 +61,7 @@ webmaster_verifications:
   facebook: # fill in your Facebook verification code
 
 # ↑ --------------------------
-# The end of `jekyll-seo-tag` settings
+# SEO 설정 끝
 
 # Web Analytics Settings
 analytics:
