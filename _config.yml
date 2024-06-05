@@ -3,9 +3,11 @@
 # 테마 Import
 theme: jekyll-theme-chirpy
 
-# The language of the webpage › http://www.lingoes.net/en/translator/langcode.htm
-# If it has the same name as one of the files in folder `_data/locales`, the layout language will also be changed,
-# otherwise, the layout language will use the default value of 'en'.
+# 페이지 언어
+# 언어 코드 찾기 > http://www.lingoes.net/en/translator/langcode.htm
+# `_data/locales` 에서 레이아웃 언어 별도 설정 가능
+# 기본값 en (영어)
+# lang: ko-KR
 lang: en
 
 # Change to your timezone › https://kevinnovak.github.io/Time-Zone-Picker
