@@ -111,7 +111,7 @@ Jekyll 을 사용해 블로그에 테마를 적용한다
 
 - [GitHub Pages Guide - QuickStart][GitHub Pages Quickstart]
 
-[gigyesik.github.io]: http://gigyesik.github.io
+[gigyesik.github.io]: https://gigyesik.github.io
 [GitHub Pages Quickstart]: https://docs.github.com/ko/pages/quickstart
 [github]: https://github.com/
 [github plans]: https://docs.github.com/en/get-started/learning-about-github/githubs-plans#github-free-for-personal-accounts
