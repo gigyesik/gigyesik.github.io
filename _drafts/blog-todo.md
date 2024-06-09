@@ -4,7 +4,7 @@ title: blog-todo
 ---
 
 # Github 블로그 프로젝트
-- [ ] 블로그 시작하기
+- [x] 블로그 시작하기
 - [ ] Github Pages 이용하기
 - [ ] Jekyll 페이지 생성기 이용하기
 - [ ] 테마 적용하기 (Chirpy)
