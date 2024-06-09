@@ -85,7 +85,7 @@ Github Pages 설정 메뉴도 활성화되어 있음을 확인할 수 있다.
 
 ![](/assets/img/2024-06-09/github-pages-quickstart-7-setting.png)
 
-## 4. 사이트 제목 설정
+## 5. 사이트 제목 설정
 
 가이드에 나와있는 문서를 따라하면 사이트 제목이 바뀐다고 해서 시도해본다.
 
