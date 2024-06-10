@@ -1,0 +1,4 @@
+---
+layout: post
+title: 용어 정리
+---
