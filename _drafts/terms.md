@@ -2,3 +2,65 @@
 layout: post
 title: 용어 정리
 ---
+
+- blog
+  - Acronym: web + log
+  - Definition: 개인 홈페이지 서비스
+- deploy
+  - Korean: 배포
+  - Definition: 소스를 컴파일, 실행하고 사용자가 접근 가능하도록 하는 것
+- GCC
+  - Acronym: GNU Compiler Collection
+  - Definition: 리눅스 컴파일러
+- git
+  - Definition: VCS
+- git add
+  - Definition: 작업 영역의 소스를 스테이징 영역에 추가하는 것
+- git clone
+  - Definition: git 서버 repository 의 소스를 local 로 복사하는 것
+- git commit
+  - Definition: 변경 작업을 repository 에 기록하는 것
+- git push
+  - Definition: 원격 repository 에 소스 변경분을 업로드하는 것
+- GitHub
+  - Definition: git 플랫폼
+- GitHub Actions
+  - Definition: GitHub 이 제공하는 개발 work flow 자동화 서비스 (CI/CD)
+- GitHub Pages
+  - Definition: GitHub 이 호스팅을 제공하는 페이지 서비스
+- IDE
+  - Integrated Development Environment
+  - Korean: 통합 개발 환경
+- Jekyll
+  - Definition: HTML, Markdown 문서를 통해 정적 페이지를 만들어주는 웹 사이트 생성기
+- JetBrains
+  - Definition: IDE 만드는 회사
+- local (environment)
+  - Definition: 내 컴퓨터
+- MacOS
+  - Definition: Apple OS
+- Markdown
+  - Definition: 문서 작성용 언어
+- Notion
+  - Definition: 문서 작성, 정리 서비스
+- repository
+  - Definition: 저장소
+- Ruby
+  - Definition: 스크립트 언어
+- RubyGems
+  - Definition: Ruby 패키지 관리자
+- Tistory
+  - Definition: 블로그 서비스
+- UI
+  - Acronym: User Interface
+  - Definition: 사용자와 컴퓨터 사이의 매개 환경
+- VCS
+  - Acronym: Version Control System
+  - Korean: 버전 관리 시스템
+  - Definition: 소스 변경 관리 시스템
+- Velog
+  - Definition: 블로그 서비스
+- WebStorm
+  - Definition: Javascript, Typescript 대응 JetBrains IDE
+- Windows
+  - Definition: Microsoft OS
