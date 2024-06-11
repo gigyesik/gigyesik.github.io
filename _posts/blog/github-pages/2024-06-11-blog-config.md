@@ -2,8 +2,8 @@
 layout: post
 title: (GitHub 블로그) 6. _config.yml 로 블로그 설정 관리하기
 date: 2024-06-11 04:15 +0900
-categories: [blog, jekyll]
-tag: [블로그, blog, jekyll, config, yml]
+categories: [blog, github-pages]
+tag: [블로그, blog, github pages, jekyll, config, yml]
 ---
 
 > 포스팅의 내용

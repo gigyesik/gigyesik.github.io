@@ -2,7 +2,7 @@
 layout: post
 title: (GitHub 블로그) 3. Jekyll 로 페이지 생성하기
 date: 2024-06-11 03:22 +0900
-categories: [blog, jekyll]
+categories: [blog, github-pages]
 tag: [블로그, blog, github pages, jekyll, ruby, rubygems]
 ---
 

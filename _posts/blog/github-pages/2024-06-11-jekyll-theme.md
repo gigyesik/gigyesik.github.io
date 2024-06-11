@@ -2,8 +2,8 @@
 layout: post
 title: (GitHub 블로그) 4. Jekyll 에 테마 적용하기 (Chirpy)
 date: 2024-06-11 03:23 +0900
-categories: [blog, jekyll]
-tag: [블로그, blog, jekyll, theme, 테마, chirpy]
+categories: [blog, github-pages]
+tag: [블로그, blog, github pages, jekyll, theme, 테마, chirpy]
 ---
 > 포스팅의 내용
 > - 현재 Jekyll 을 사용한 기본 테마로 블로그 빌드에 성공한 상태이다.
