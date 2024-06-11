@@ -1,7 +1,7 @@
 ---
 layout: post
 title: (GitHub 블로그) 4. Jekyll 에 테마 적용하기 (Chirpy)
-date: 2024-06-11 03:22 +0900
+date: 2024-06-11 03:23 +0900
 categories: [blog, jekyll]
 tag: [블로그, blog, jekyll, theme, 테마, chirpy]
 ---
