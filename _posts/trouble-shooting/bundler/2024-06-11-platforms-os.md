@@ -71,7 +71,7 @@ with `bundle lock --add-platform x86_64-linux` and try again.
 
 Gemfile.lock 에 빌드 환경인 리눅스를 추가하고, 빌드와 배포 성공.
 
-```gemfile
+```bash
 PLATFORMS
   x64-mingw-ucrt
   x86_64-darwin-23
