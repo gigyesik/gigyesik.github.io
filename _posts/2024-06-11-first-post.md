@@ -1,7 +1,7 @@
 ---
 layout: post
 title: (GitHub 블로그) 5. 글 작성하기
-date: 2024-06-11 03:22 +0900
+date: 2024-06-11 04:03 +0900
 categories: [blog, github pages]
 tag: [블로그, blog, github pages, posting]
 ---
