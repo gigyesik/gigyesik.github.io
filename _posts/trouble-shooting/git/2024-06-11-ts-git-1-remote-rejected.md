@@ -23,6 +23,6 @@ $ git push origin
 
 # 해결 - 토큰 재발급
 
-![](/assets/img/2024-06-11/2024-06-11-remote-rejected-token.png)
+![](/assets/img/2024-06-11/2024-06-11-ts-git-1-remote-rejected-token.png)
 
 Github Account → Settings → Developer Settings 메뉴에서 토큰 생성시 ‘workflow’ 항목을 포함하여 발급된 토큰으로 푸시하면 성공.

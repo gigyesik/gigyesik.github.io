@@ -47,7 +47,7 @@ disqus, utterances, giscus 가 그것이다.
 - 소셜 로그인 또는 disqus 자체 로그인을 통해 댓글을 생성할 수 있다.
 - [유료 plan 이 존재하고, 유료 버전을 사용해야만 광고를 지울 수 있다고 한다.][disqus]
 
-![](/assets/img/2024-06-13/2024-06-13-blog-comments-1-disqus.png)
+![](/assets/img/2024-06-13/2024-06-13-blog-github-pages-7-comments-giscus-1-disqus.png)
 
 ### utterances
 
@@ -55,14 +55,14 @@ disqus, utterances, giscus 가 그것이다.
 - 무료이고, 광고 없다.
 - 레포의 github-issue 를 통해 관리된다.
 
-![](/assets/img/2024-06-13/2024-06-13-blog-comments-2-utterances.png)
+![](/assets/img/2024-06-13/2024-06-13-blog-github-pages-7-comments-giscus-2-utterances.png)
 
 ### giscus
 
 - utterances 와 마찬가지로 github 계정 사용, 무료, 광고 없음
 - 레포의 github-discussion 을 통해 관리된다.
 
-![](/assets/img/2024-06-13/2024-06-13-blog-comments-3-giscus.png)
+![](/assets/img/2024-06-13/2024-06-13-blog-github-pages-7-comments-giscus-3-giscus.png)
 
 ### 선정 - giscus
 
@@ -78,17 +78,17 @@ disqus, utterances, giscus 가 그것이다.
 - 레포는 public 상태여야 한다.
 - 블로그 레포의 Settings > General > Discussions 기능을 활성화한다.
 
-![](/assets/img/2024-06-13/2024-06-13-blog-comments-4-setting-discussions.png)
+![](/assets/img/2024-06-13/2024-06-13-blog-github-pages-7-comments-giscus-4-setting-discussions.png)
 
 ## giscus 설치
 
 - [giscus 앱 설치 페이지][giscus-app] 에서 레포에 APP 을 다운로드한다.
 
-![](/assets/img/2024-06-13/2024-06-13-blog-comments-5-giscus-install.png)
+![](/assets/img/2024-06-13/2024-06-13-blog-github-pages-7-comments-giscus-5-giscus-install.png)
 
 - 설치 후 [giscus 홈페이지][giscus]에서 {username}/{repository} 를 입력하면 성공 메시지를 받을 수 있다.
 
-![](/assets/img/2024-06-13/2024-06-13-blog-comments-6-giscus-setting.png)
+![](/assets/img/2024-06-13/2024-06-13-blog-github-pages-7-comments-giscus-6-giscus-setting.png)
 
 ## _config.yml 에 적용
 

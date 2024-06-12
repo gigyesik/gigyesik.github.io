@@ -22,7 +22,7 @@ tag: [블로그, blog, github pages, posting]
   - ex. 2024-05-01-first-post.markdown
 - 파일을 작성 후 배포하면 포스팅을 확인할 수 있다.
 
-![](/assets/img/2024-06-11/2024-06-11-first-post-1-result.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-5-first-post-1-result.png)
 
 ## Jekyll Compose
 

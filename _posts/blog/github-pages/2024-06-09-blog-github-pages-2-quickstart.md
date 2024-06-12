@@ -26,7 +26,7 @@ username.github.io 라는 이름의 레포를 생성한다.
 
 내 username 은 gigyesik 이니까, [gigyesik.github.io][gigyesik.github.io] 라고 명명한다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-1-create-new-repository.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-1-create-new-repository.png)
 
 레포를 public 으로 설정할 것인지 private 로 설정할 것인지를 묻고 있다.
 
@@ -37,11 +37,11 @@ username.github.io 라는 이름의 레포를 생성한다.
 
 만들어진 레포의 Settings > Pages 메뉴로 들어간다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-2-settings-page.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-2-settings-page.png)
 
 그대로 Save 버튼을 누르면 Github Pages 문서가 저장되었다는 메시지를 받을 수 있다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-3-source-saved.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-3-source-saved.png)
 
 ## 3. 블로그 접속 시도해보기
 
@@ -49,7 +49,7 @@ Github Pages 가 저장되었다고 하니 [gigyesik.github.io][gigyesik.github.
 
 당연할 것이, 아무 것도 한게 없는데 페이지가 나올 수는 없지..
 
-![](/assets/img/2024-06-09/github-pages-quickstart-4-404.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-4-404.png)
 
 ## 4. 블로그 소스 생성
 
@@ -61,7 +61,7 @@ Github Pages 가 저장되었다고 하니 [gigyesik.github.io][gigyesik.github.
 
 레포지토리를 local로 클론한다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-5-clone.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-5-clone.png)
 
 ```shell
 // git clone {레포 git 경로}
@@ -79,11 +79,11 @@ git clone https://github.com/gigyesik/gigyesik.github.io.git
 
 첫 블로그 페이지 생성에 성공한 것이다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-6-main.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-6-main.png)
 
 Github Pages 설정 메뉴도 활성화되어 있음을 확인할 수 있다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-7-setting.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-7-setting.png)
 
 ## 5. 사이트 제목 설정
 
@@ -91,7 +91,7 @@ Github Pages 설정 메뉴도 활성화되어 있음을 확인할 수 있다.
 
 초기에는 username으로 설정되어 있다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-8-default-title.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-8-default-title.png)
 
 _config.yml 파일을 생성하고, 제목을 입력한다
 
@@ -101,7 +101,7 @@ title: gigyesik github pages
 
 ruby 배포(여기서는 커밋, 푸시)하고 나면 입력한 내용으로 변경됨을 확인할 수 있다.
 
-![](/assets/img/2024-06-09/github-pages-quickstart-9-title.png)
+![](/assets/img/2024-06-09/2024-06-09-blog-github-pages-2-quickstart-9-title.png)
 
 # Next
 

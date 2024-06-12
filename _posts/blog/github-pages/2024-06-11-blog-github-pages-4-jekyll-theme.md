@@ -11,7 +11,7 @@ tag: [블로그, blog, github pages, jekyll, theme, 테마, chirpy]
 > - 테마는 [Jekyll 의 테마 추천 페이지][jekyll-theme] 에서 검색할 수 있다.
 > - 나는 [Chirpy Theme][chirpy] 를 선택했다. 지나가다 보여서.
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-theme-1-current.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-4-jekyll-theme-1-current.png)
 
 # 적용 방법
 
@@ -24,11 +24,11 @@ tag: [블로그, blog, github pages, jekyll, theme, 테마, chirpy]
 
 - Starter 의 소스 파일을 ZIP 으로 다운받는다.
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-theme-2-download-repo.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-4-jekyll-theme-2-download-repo.png)
 
 ### 프로젝트 경로에 파일 덮어쓰기
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-theme-3-paste.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-4-jekyll-theme-3-paste.png)
 
 ## Local 빌드 후 결과 확인
 
@@ -36,11 +36,11 @@ tag: [블로그, blog, github pages, jekyll, theme, 테마, chirpy]
 exec jekyll serve
 ```
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-theme-4-local.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-4-jekyll-theme-4-local.png)
 
 # [gigyesik.github.io][blog] 에 배포 후  결과 확인
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-theme-5-prod.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-4-jekyll-theme-5-prod.png)
 
 # Next
 

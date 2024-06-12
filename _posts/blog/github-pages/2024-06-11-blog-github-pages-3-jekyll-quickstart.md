@@ -93,7 +93,7 @@ jekyll new gigyesik.github.io
 
 레포지토리 안에 아래와 같은 파일들이 생성된다.
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-quickstart-1-files.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-3-jekyll-quickstart-1-files.png)
 
 # 페이지 확인하기
 
@@ -107,14 +107,14 @@ exec jekyll serve
 
 ### 기본 포트인 [localhost:4000] 에 접속
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-quickstart-2-local.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-3-jekyll-quickstart-2-local.png)
 
 ## [gigyesik.github.io][blog] 에 배포
 
 - 커밋, 푸시 (앞서 설정한 github actions 가 빌드, 배포해준다)
 - {username}.github.io 에 접속해 결과 확인 (몇 분 기다려야 할 수 있다)
 
-![](/assets/img/2024-06-11/2024-06-11-jekyll-quickstart-3-prod.png)
+![](/assets/img/2024-06-11/2024-06-11-blog-github-pages-3-jekyll-quickstart-3-prod.png)
 
 # Next
 

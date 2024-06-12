@@ -8,7 +8,7 @@ tag: [trouble shooting, bundler, github actions, gemfile]
 
 # 발생 상황
 
-- github actions를 사용하여 deploy.yaml 설정 후 배포를 진행하였다.
+- github actions 를 사용하여 deploy.yaml 설정 후 배포를 진행하였다.
 - 빌드에 실패하였고, process failed 메시지를 받았다.
 
 ```bash
