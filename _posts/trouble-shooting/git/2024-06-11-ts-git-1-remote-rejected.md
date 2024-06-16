@@ -2,7 +2,7 @@
 layout: post
 title: (git) [remote rejected] (refusing to allow a Personal Access Token to create or update workflow .github/workflows/pages-deploy.yml without workflow scope)
 date: 2024-06-11 15:47 +0900
-categories: [trouble-shooting, _git]
+categories: [trouble-shooting, ts-git]
 tag: [trouble shooting, git, github, access token]
 ---
 

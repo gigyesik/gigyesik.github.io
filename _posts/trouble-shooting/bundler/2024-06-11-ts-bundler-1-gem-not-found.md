@@ -2,7 +2,7 @@
 layout: post
 title: (bundler) Bundler::GemNotFound
 date: 2024-06-11 15:36 +0900
-categories: [trouble-shooting, _bundler]
+categories: [trouble-shooting, ts-bundler]
 tag: [trouble shooting, bundler, rubygems]
 ---
 
