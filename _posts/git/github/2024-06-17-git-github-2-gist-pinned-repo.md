@@ -1,7 +1,7 @@
 ---
 layout: post
 title: (GitHub 프로필) 2. Gist 와 Pinned Repo 활용하기
-date: 2024-06-17 01:29 +0900
+date: 2024-06-17 02:45 +0900
 categories: [git, github]
 tag: [git, github, github profile, gist, pinned repository]
 ---
