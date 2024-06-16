@@ -1,7 +1,7 @@
 ---
 layout: post
 title: (GitHub 프로필) 1. README.md 작성하기
-date: 2024-06-15 11:46 +0900
+date: 2024-06-17 01:29 +0900
 categories: [git, github]
 tag: [git, github, github profile, README.md]
 ---
