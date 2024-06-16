@@ -2,7 +2,7 @@
 layout: post
 title: (ruby) There are no versions of google-protobuf (>= 3.25, < 5.0) compatible with your Ruby & RubyGems.
 date: 2024-06-11 15:00 +0900
-categories: [trouble-shooting, ruby]
+categories: [trouble-shooting, _ruby]
 tag: [trouble shooting, ruby, rubygems, rbenv]
 ---
 

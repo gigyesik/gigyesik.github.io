@@ -2,7 +2,7 @@
 layout: post
 title: (bundler) The process '/opt/hostedtoolcache/Ruby/3.3.1/x64/bin/bundle' failed with exit code 16
 date: 2024-06-11 16:05 +0900
-categories: [trouble-shooting, bundler]
+categories: [trouble-shooting, _bundler]
 tag: [trouble shooting, bundler, github actions, gemfile]
 ---
 
