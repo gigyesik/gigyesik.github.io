@@ -51,6 +51,8 @@ title: 용어 정리
   - Definition: Ruby 패키지 관리자
 - Tistory
   - Definition: 블로그 서비스
+- Ubuntu
+  - Definition: OS. 리눅스의 일종
 - UI
   - Acronym: User Interface
   - Definition: 사용자와 컴퓨터 사이의 매개 환경
