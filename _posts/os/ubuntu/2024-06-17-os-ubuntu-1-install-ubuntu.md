@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 안쓰는 노트북에 우분투 (ubuntu) 설치하기
-date: 2024-06-17 03:51π +0900
+date: 2024-06-17 03:51 +0900
 categories: [os, ubuntu]
 tag: [os, operating system, linux, ubuntu]
 ---
