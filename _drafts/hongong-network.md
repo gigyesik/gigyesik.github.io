@@ -38,3 +38,33 @@
   - 브로드캐스트(broadcast): 자신을 제외한 네트워크상의 모든 호스트에게 메시지 전송
 
 ### 01-3. 네크워크 미시적으로 살펴보기 (50p~)
+
+- 프로토콜(protocol) : 노드 간 통신 방법 규약
+- 네트워크 참조 모델(네트워크 계층 모델) : 통신 구조를 계층화한 것
+  - OSI 7계층
+    - 물리 계층(physical layer) : 비트 신호
+    - 데이터 링크 계층(data link layer) : MAC 주소 특정
+    - 네트워크 계층(network layer) : IP 주소 특정
+    - 전송 계층(transport layer) : 패킷 흐름 제어, 포트(응용 프로그램) 특정
+    - 세션 계층(session layer) : 호스트의 응용 프로그램 간 연결 상태(세션) 제어
+    - 표현 계층(presentation layer) : 통신 데이터 변환, 압축, 암호화
+    - 응용 계층(application layer) : 응용 프로그램에 네트워크 서비스 제공
+  - TCP/IP 프로토콜
+    - 프로토콜 스위트(suite) 또는 스택(stack). 프로토콜의 집합
+    - 네트워크 엑세스 계층(network access layer) : OSI 데이터 링크 계층과 유사
+    - 인터넷 계층(internet layer) : OSI 네트워크 계층과 유사
+    - 전송 계층(transport layer) : OSI 전송 계층과 유사
+    - 응용 계층(application layer) : OSI 세션 계층 + 표현 계층 + 응용 계층솨 유사
+- 캡슐화(encapsulation), 역캡슐화(decapsulation)
+  - 송신 과정에서 헤더 및 트레일러 추가, 제거
+- PDU(Protocol Data Unit) : 각 계층에서 송수신되는 메시지의 단위
+  - 응용, 표현, 세션, 전송 계층 : 데이터(Data)
+  - 전송 계층 : 세그먼트(segment), 데이터그램(datagram)
+  - 네트워크 계층 : ip 패킷(ip packet)
+  - 데이터 링크 계층 : 프레임(frame)
+  - 물리 계층 : 비트(bit)
+- 트래픽과 네트워크 성능 지표
+  - 트래픽(traffic) : 네트워크 내의 정보량
+  - 처리율(throughput) : 단위 시간당 전송량. bps, Mbps, Gbps, pps
+  - 대역폭(bandwidth) : 단위 시간당 송수신 가능한 최대 정보량. bps, Mbps, Gbps
+  - 패킷 손실(packet loss) : 전체 패킷 중 유실된 패킷의 비율
