@@ -147,3 +147,52 @@
   - MAC 기반 VLAN(MAC based VLAN) : 포트와 관계없이 MAC 주소 기반으로 VLAN 설정
 
 ## 03. 네트워크 계층 (126p~)
+
+### 03-1. LAN 을 넘어서는 네트워크 계층 (128p~)
+
+- 1계층(물리 계층), 2계층(데이터 링크 계층) 만으로 모든 전송을 하지 못하는 이유
+  - 다른 네트워크까지의 도달 경로를 알 수 없다. -> 라우터(router)
+  - 모든 네트워크에 속한 호스트의 위치를 알 수 없다. -> IP + MAC 함께 사용
+- 라우팅(routing) : 패킷이 이동할 최적의 경로를 결정하는 것. 라우터가 수행
+- IP 주소 : 논리 주소. '호스트' 에 할당
+  - DHCP(Dynamic Host Configuration Protocol) 로 자동 할당하거나, 직접 할당 가능.
+  - 한 호스트가 복수의 주소를 갖는 것도 가능
+- IP(Internet Protocol)
+  - IP 주소 지정(IP addressing) : IP 주소를 바탕으로 송수신 대상을 지정하는 것
+  - IP 단편화(IP fragmentation) : 패킷이 MTU 보다 크기가 클 경우 복수의 패킷으로 나누는 것
+    - MTU(Maximum Transmission Unit) : 한 번에 전송 가능한 IP 패킷의 헤더 포함한 최대 크기. 일반적으로 1500바이트
+    - 경로 MTU(Path MTU) : 단편화 없이 전송할 수 있는 최대 크기
+  - IPv4 : RFC-791
+    - 주소 형태 : 옥텟(octet. 0~2^8 사이의 10진수) 4개. ex) 255.255.255.255
+      - 4바이트(32비트). 옥텟 하나당 8비트(1바이트)
+    - IPv4 패킷 : 프레임의 페이로드 (데이터 필드). 아래는 IPv4 의 헤더들
+      - 식별자(identifier) : 패킷에 할당된 변호. 패킷이 단편화된 경우의 일련번호
+      - 플래그(flag) : 3비트
+        - 예약 비트. 항상 0으로 현재 사용하지 않음
+        - DF(Don't Fragment) : 1이면 단편화 off, 0이면 단편화 on. 1인데 크기 초과한 경우 폐기
+        - MF(More Fragment) : 0이면 마지막 패킷, 1이면 다른 단편화 패킷 더 있음
+      - 단편화 오프셋(fragment offset) : 패킷 초기 데이터로부터 떨어진 위치 (순서 보장되지 않으므로)
+      - TTL(Time To Live) : 한 홉마다(hop) 1씩 감소하여 0이 되면 패킷 폐기하고 호스트에게 Time Exceed 메시지 전송(ICMP)
+        - 홉 : 패킷이 호스트 또는 라우터에 1번 전달되는 것
+      - 프로토콜 : 상위 계층 프로토콜 정보. TCP 6번, UDP 17번
+      - 송신지 IP 주소(source IP address)
+      - 수신지 IP 주소(destination IP address)
+  - IPv6 : IPv4 의 고갈을 막기 위해 등장한 IP 주소
+    - IPv6 패킷 : IPv4 에 비해 간소화되어있음(기본 헤더). 
+      - 다음 헤더(next header) : 간소화된 기본 헤더 이외의 확장 헤더
+        - 기본 헤더와 페이로드 사이에 위치
+        - 홉 간 옵션, 수신지 옵션, 라우팅, 단편화 등
+        - 단편화 확장 헤더 : IPv6 의 단편화를 담당하는 확장 헤더
+          - 예약됨(reserved), 예약(res) : 0으로 현재 사용하지 않음
+          - 단편화 오프셋, M flag(IPv4의 MF), 식별자
+      - 홉 제한(hot limit) : TTL
+      - 송신지 IP 주소
+      - 수신지 IP 주소
+- ARP(Address Resolution Protocol) : IP 주소를 통해 MAC 주소를 알아내는 프로토콜
+  - ARP 요청(ARP request) : 네트워크 내 모든 호스트에게 ARP 패킷 브로드캐스트 메시지
+    - 프레임 페이로드(데이터) 내 포함
+      - 오퍼레이션 코드(Opcode) : 1이면 ARP 요청, 2이면 ARP 응답
+      - 송신지, 수신지 하드웨어 주소(Sender, Target Hardware Address) : MAC 주소. ff:~:ff, 00:~:00
+      - 송신지, 수신지 프로토콜 주소(Sender, Target Protocol Address) : IP 주소
+  - ARP 응답(ARP reply) : 해당하는 MAC 주소의 호스트가 송신자에게 응답 패킷 전송
+  - ARP 테이블(ARP table) 갱신 : IP 주소와 MAC 주소 대응 표
