@@ -241,3 +241,41 @@
     - 자기 자신을 호스트인 양 사용하여 패킷 전송 가능
   - 이 네트워크의 이 호스트 : 0.0.0.0/8(0.0.0.0 ~ 0.255.255.255.255)
   - 모든 임의의 IP 주소 : 0.0.0.0/0. 디폴트 라우트(default route) 결정
+
+### 03-3. 라우팅
+
+- 라우팅 : 라우터의 핵심 기능. 패킷이 이동할 경로를 설정하고 이동시키는 것
+- 라우터 : 3계층의 핵심 장비
+  - 공유기 : 홈 라우터(home router). 라우터 + NAT + DHCP + 방화벽
+  - 홉(hop) : 라우터와 라우터 간 이동하는 하나의 과정
+    - 라우팅 테이블(routing table) : 수신지까지 도달 정보를 명시한 표
+      - 수신지 IP 주소, 서브넷 마스크 : 최종 패킷 전달 대상
+      - 다읍 홉(next hop) : 게이트웨에. 다음으로 거쳐야 할 호스트의 IP 주소 또는 인터페이스
+      - 네트워크 인터페이스 : 패킷을 내보낼 통로. NIC 또는 인터페이스에 대응하는 IP
+      - 메트릭(metric) : 해당 경로로 이동하는 데 드는 비용
+    - 디폴트 라우트(default route) : 기본 게이트웨이로 패킷을 내보낼 경로. 0.0.0.0/0
+- 정적 라우팅과 동적 라우팅 : 라우팅 테이블을 만드는 방법
+  - 정적 라우팅(static routing) : 수동으로 채운 라우팅 테이블을 기반으로 라우팅하는 방식
+  - 동적 라우팅(dynamic routing) : 자동으로 라우팅 테이블을 만들고 이를 이용하여 라우팅하는 방식
+    - AS(Autonomous System) : 한 회사나 집단에서 관리하는 라우터 집단 네크워크
+      - AS 밖과 통신할 때는 AS 경계 라우터(ASBR; Autonomous System Boundary Router) 사용
+- 라우팅 프로토콜(routing protocol) : 패킷 이동 최적 경로 찾는 프로토콜
+  - IGP(Interior Gateway Protocol) : AS 내부 수행 라우팅 프로토콜
+    - RIP(Routing Information Protocol) : 거리 벡터(distance vector) 사용
+      - 경로 정보를 주기적으로 교환하여 라우팅 테이블 갱신
+      - 홉 수가 가장 적은 경로를 최적 경로로 판단
+    - OSPF(Open Shortest Path First) : 링크 상태(link state) 사용
+      - 네트워크의 그래프를 링크 상태 데이터베이스에 저장(LSDB; Link State DataBase)
+      - LSDB 를 기반으로 최적 경로 선택
+      - 네트워크 구성이 변경되었을 때 갱신
+        - 에어리어(area)로 구획화하고 내부에서만 링크 상태 공유. 경계 라우터 ABR(Area Border Router)
+  - EGP(Exterior Gateway Protocol) : AS 외부 수행 라우팅 프로토콜
+    - BGP(Border Gateway Protocol) : AS 간 통신 프로토콜(eBGP; external) (AS 내부 통신도 가능. iBGP; internal)
+      - 피어(peer) : BGP 메시지를 주고받을 수 있도록 연결된 ASBR
+      - 속성(attribute) : 경로 결정에 대한 부가 정보
+        - AS-PATH : 수신지에 이르는 과정에서 통과하는 AS 들의 목록
+          - 라우팅 시 라우터 수가 아님 'AS 수' 가 최단경로 기준이므로, AS-PATH 가 짧아도 통과해야 하는 라우터 수가 많을 수 있음 
+          - '거리'가 아닌 '경로' 를 고려(경로 벡터. path vector). 자신의 AS 가 PATH 상에 포함되면 순환으로 간주해 폐기
+        - NEXT-HOP : 다음으로 거칠 라우터의 주소
+        - LOCAL-PREF(preference) : 정책으로 설정한 선호도값. AS-PATH 나 NEXT-HOP 보다 우선 적용
+      - 정책(policy) : 경로 결정을 의도를 가지고 수동으로 제어
