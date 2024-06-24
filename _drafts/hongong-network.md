@@ -197,7 +197,7 @@
   - ARP 응답(ARP reply) : 해당하는 MAC 주소의 호스트가 송신자에게 응답 패킷 전송
   - ARP 테이블(ARP table) 갱신 : IP 주소와 MAC 주소 대응 표
 
-### 03-2. IP 주소
+### 03-2. IP 주소 (148p~)
 
 - IP 주소(IP address) : 네트워크 주소(network identifier) + 호스트 주소(host identifier)
   - 클래스풀 주소 체계(classful addressing)
@@ -242,7 +242,7 @@
   - 이 네트워크의 이 호스트 : 0.0.0.0/8(0.0.0.0 ~ 0.255.255.255.255)
   - 모든 임의의 IP 주소 : 0.0.0.0/0. 디폴트 라우트(default route) 결정
 
-### 03-3. 라우팅
+### 03-3. 라우팅 (170p~)
 
 - 라우팅 : 라우터의 핵심 기능. 패킷이 이동할 경로를 설정하고 이동시키는 것
 - 라우터 : 3계층의 핵심 장비
@@ -279,3 +279,47 @@
         - NEXT-HOP : 다음으로 거칠 라우터의 주소
         - LOCAL-PREF(preference) : 정책으로 설정한 선호도값. AS-PATH 나 NEXT-HOP 보다 우선 적용
       - 정책(policy) : 경로 결정을 의도를 가지고 수동으로 제어
+
+## 04. 전송 계층 (188p~)
+
+### 04-1. 전송 계층 개요. IP의 한계와 포 (190p~)
+
+- IP 의 한계
+  - 신뢰할 수 없는(비신뢰성) 프로토콜(unreliable protocol) : 패킷의 수신지까지 전달을 보장하지 않음
+  - 비연결형 프로토콜(connectionless protocol) : 송수신 호스트간 연결 작업을 하지 않음
+- 전송 계층의 IP 한계 보완
+  - TCP 연결 수립
+  - TCP 를 통해 재전송을 통한 오류 제어, 흐름 제어, 혼잡 제어
+- 포트(port) : 특정 어플리케이션을 식별할 수 있는 정보
+  - 패킷의 최종 수신 대상은 특정 어플리케이션 프로세스
+  - 프로세스 : 실행 중인 프로그램. PID(Process ID)로 구별
+  - 포트의 분류
+    - 잘 알려진 포트(well known port) : 0~1023
+      - FTP(20, 21), SSH(22), TELNET(23), 53(DNS), DHCP(67, 68), HTTP(80), HTTPS(443) 등
+    - 등록된 포트(registered port) : 1024~49151
+      - MySQL(3306), Redis(6379), HTTP 대체(8080) 등
+    - 동적 포트(dynamic port) : 사설 포트(private port), 임시 포트(ephemeral port). 49152~65535 (2^16 -1)
+  - 특정 호스트에서 실행 중인 특정 어플리케이션 프로세스 : {IP 주소}:{포트 번호}
+- 포트 기반 NAT
+  - NAT 변환 테이블 : 사설 IP 공인 IP 주소를 변환
+  - NAPT(Network Address Port Translation) : APT(Address Port Translation)
+    - 포트를 활용해 하나의 공인 IP 주소를 여러 사설 IP 주소가 공유할 수 있도록 하는 NAT
+- 포트 포워딩(port forwarding) : 네트워크 내 특정 호스트에 IP 주소와 포트 번호를 미리 할당하여 패킷 전달하는 기능
+- ICMP(Internet Control Message Protocol) : 네트워크 계층 프로토콜
+  - IP 한계 보완 목적. ICMP 메시지 수신(하지만 보조적인 역할일 뿐 전송 계층 필요. RFC-792)
+  - traceroute, tracert, ping
+  - 타입(type), 코드(code)
+    - 3 : 패킷 수신지 도달 불가
+      - 0 : 네트워크 도달 불가
+      - 1 : 호스트 도달 불가
+      - 2 : 프로토콜 도달 불가(수신지에서 프로토콜 사용 불가)
+      - 3 : 포트 도달 불가
+      - 4 : 단편화가 필요하지만 DF 가 1로 설정되어 있음
+    - 11 : 시간 초과
+      - 0 : TTL 만료
+    - 8 : 에코 요청
+      - 0 : 에코 요청
+    - 0 : 에코 응답
+      - 0 : 에코 요청에 대한 응답
+    - 9 : 라우터 광고
+      - 0 : 라우터가 호스트에게 자신을 알림
