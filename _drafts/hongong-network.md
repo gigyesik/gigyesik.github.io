@@ -196,3 +196,48 @@
       - 송신지, 수신지 프로토콜 주소(Sender, Target Protocol Address) : IP 주소
   - ARP 응답(ARP reply) : 해당하는 MAC 주소의 호스트가 송신자에게 응답 패킷 전송
   - ARP 테이블(ARP table) 갱신 : IP 주소와 MAC 주소 대응 표
+
+### 03-2. IP 주소
+
+- IP 주소(IP address) : 네트워크 주소(network identifier) + 호스트 주소(host identifier)
+  - 클래스풀 주소 체계(classful addressing)
+    - A 클래스 : 8/24
+      - 초기 비트 0 (10진수 0)
+      - 할당 범위 0.0.0.0 ~ 127.255.255.255
+    - B 클래스 : 16/16
+      - 초기 비트 10 (10진수 128)
+      - 할당 범위 128.0.0.0 ~ 191.255.255.255
+    - C 클래스 : 24/8
+      - 초기 비트 110 (10진수 192)
+      - 할당 범위 192.0.0.0 ~ 223.255.255.255
+    - 호스트 주소 전부 0 : 해당 네트워크 자체
+    - 호스트 주소 전수 1 : 브로드캐스트 전용
+  - 클래스리스 주소 체계(classless addressing) : 서브네팅(subnetting)
+    - 서브넷 마스크(subnet mask) : 네트워크 주소는 1, 호스트 주소는 0으로 표기한 비트열
+      - IP 주소와 서브넷 마스크를 비트 AND 연산(bitwise AND operation) 하면 네트워크 주소를 알 수 있다.
+      - ex) 172.29.208.1, 255.255.240.0 -> 172.29.208.0
+      - CIDR 표기법(Classless Inter-Domain Routing notation) : IP 주소 / 서브넷 마스크상 1의 갯수
+      - ex) 172.29.208.1/20
+  - 공인 IP 주소와 사설 IP 주소
+    - 공인 IP 주소(public IP address) : 고유 IP. ISP 나 할당기관을 통해 할당 가능
+    - 사설 IP 주소(private IP address) : 사설 네트워크 IP. 라우터가 할당
+      - 10.0.0.0/8(10.0.0.0 ~ 10.255.255.255.255)
+      - 172.16.0.0/12(172.16.0.0 ~ 172.31.255.255)
+      - 192.168.0.0/16(192.168.0.0 ~ 192.168.255.255)
+    - NAT(Network Address Translation) : 공인 IP 와 사설 IP 변환 기술. 라우터 또는 공유기
+  - 정적 IP 주소와 동적 IP 주소
+    - 정적 IP 주소(static IP address) : 호스트에 수동으로 IP 주소 할당
+      - 기본 게이트웨이(default gateway) : 호스트가 속한 네크워크 외부로 나가기 위한 첫 경로(첫 번째 홉). 공유기 주소
+    - 동적 IP 주소(dynamic IP address) : 호스트에 자동으로 IP 주소 할당
+      - DHCP(Dynamic Host Configuration Protocol) : IP 동적 할당 프로토콜. 호스트와 DHCP 서버간 통신
+        - DHCP Discover(Client -> DHCP) : 송신지 주소 0.0.0.0 으로 DHCP 서버 검색(브로드캐스트)
+        - DHCP Offer(DHCP -> Client) : 할당해 줄 IP 주소 제안
+        - DHCP Request(Client -> DHCP) : 브로드캐스트로 IP 주소 사용 요청
+        - DHCP ACK(Acknowledge)(DHCP -> Client) : 클라이언트에게 IP 주소 할당(임대)
+        - 임대 기간이 끝나면 재할당하거나 임대 갱신(lease renewal)
+- 예약 주소
+  - 루프백(loopback address) : 127.0.0.0/8(127.0.0.0 ~ 127.255.255.255)
+    - 로컬호스트(localhost)
+    - 자기 자신을 호스트인 양 사용하여 패킷 전송 가능
+  - 이 네트워크의 이 호스트 : 0.0.0.0/8(0.0.0.0 ~ 0.255.255.255.255)
+  - 모든 임의의 IP 주소 : 0.0.0.0/0. 디폴트 라우트(default route) 결정
