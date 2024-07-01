@@ -439,3 +439,71 @@
 ## 응용 계층 (250p~)
 
 ### 05-1. DNS 와 자원 (252p~)
+
+- 도메인 네임과 네임 서버
+  - 도메인 네임(domain name) : 호스트의 IP 주소와 대응되는 문자열 호스트 정보 (example.com)
+  - 네임 서버(name server) : IP 주소와 도메인 네임을 관리하는 서버 (공용 전화번호부)
+    - DNS(Domain Name Server) : 도메인 네임을 관리하는 서버
+    - DNS(Domain Name System) : 분산된 도메인 네임의 관리 체계
+  - host 파일 : 도메인 네임과 IP 주소의 대응 관계를 담은 파일 (개인 전화번호부)
+    - mac, linux : /etc/hosts
+    - windows : \SystemRoot\System32\drivers\etc\hosts
+  - 전체 주소 도메인 네임(FDQN; Fully-Qualified Domain name) ex. www.example.com.
+    - 루트 도메인(root domain) : 마지막 .
+    - 최상위 도메인(TLD; Top-Level Domain) : com
+    - 2단계 도메인(second-level domain) : example
+    - 3단계 도메인(호스트 네임. host name) : www
+    - 서브 도메인 : 자기 앞. example.com 은 com 의 서브 도메인
+- 계층적 네임 서버
+  - 리졸빙(resolving) : IP 주소를 모르는 상태에서 도메인 네임에 해당하는 IP 를 알아내는 과정(IP 주소 풀이)
+  - 로컬 네임 서버(local name server) : ISP 가 할당해주는 클라이언트와 닿아 있는 네임 서버
+  - 공개 DNS 서버(public DNS server) : 로컬 네임 서버 대신 구글의 8.8.8.8 등 이용 가능
+  - 루트 네임 서버(root name server) : 루트 도메인을 관리하는 네임 서버
+  - TLD 네임 서버(TLD name server) : TLD 를 관리하는 네임 서버
+  - 책임 네임 서버(authoritative name server) : 특정 도메인 영역을 관리하는 네임 서버
+    - 로컷 네임 서버가 마지막으로 질의하는 네임 서버. 곧바로 IP 주소 응답 가능
+  - 재귀적 질의(recursive query)
+    - 클라이언트 -> 로컬(공개) -> 루트 -> TLD -> 책임(IP) -> TLD -> 루트 -> 로컬(공개) -> 클라이언트
+  - 반복적 질의(iterative query)
+    - 클라이언트 -> 로컬(공개)
+    - 로컬(공개) -> 루트 -> 로컬(공개)
+    - 로컬(공개) -> TLD -> 로컬(공개)
+    - 로컬(공개) -> 책임(IP) -> 로컬(공개)
+    - 로컬(공개) -> 클라이언트
+  - DNS 캐시(DNS cache) : 네임 서버들이 응답 결과를 임시 저장했다가 같은 질의에 활용하는 것
+    - TTL(Time To Live) : 캐시(임시저장)될 수 있는 시간
+- URI(Uniform Resource Identifier) : 네트워크상에서 자원을 식별하는 방식
+  - 자원(Resource) : 네트워크상 메시지를 통해 주고받는 대상(내용)
+  - URL(Uniform Resource Locator) : 위치를 이용해 자원 식별 
+    - ex. foo://www.example.com:8042/over/there?name=gigyesik#eyes
+    - scheme : `foo://`
+      - 자원에 접근하는 방법(프로토콜)
+      - HTTP, HTTPS 등
+    - authority : `www.example.com:8042`
+      - IP 주소 또는 도메인 네임
+      - 포트 포함
+    - path : `/over/there`
+      - 자원이 위치하는 경로
+    - query(query string, query parameter) : `?name=gigyesik`
+      - 서버에 요청을 보낼 때 사용하는 값
+    - fragment : `#eyes`
+      - 자원의 특정 부분 지칭
+  - URN(Uniform Resource Name) : 이름을 이용해 자원 식별
+    - 도서 코드 `urn:isbn:045140523`
+    - rfc 문서 번호 `urn:ietf:rfc:2648`
+- DNS 레코드 타입
+  - DNS 자원 레코드(DNS resource record) : 도메인 네임과 IP 주소의 대응 관계를 저장하는 값
+    - 타입
+      - A : IPv4
+      - AAAA : IPv6
+      - CNAME : 호스트 네임의 별칭
+      - NS : 네임 서버 지정
+      - MX : 메일 서버
+    - 이름
+    - 값
+    - TTL
+    - 예시 (타입 / 이름 / 값 / TTL)
+      - A, example.com, 1.2.3.4, 300 : IPv4 주소 1.2.3.4 와 example.com 대응
+      - CNAME, www.example.com, example.com, 300 : www.example.com 을 질의해도 1.2.3.4 를 응답받을 수 있음
+
+### 05-3. HTTP (272p~)
