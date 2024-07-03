@@ -507,3 +507,20 @@
       - CNAME, www.example.com, example.com, 300 : www.example.com 을 질의해도 1.2.3.4 를 응답받을 수 있음
 
 ### 05-3. HTTP (272p~)
+
+- HTTP(Hypertext Transfer Protocol) : 응용 계층 프로토콜
+  - 요청, 응답 기반 (Request, Response Header)
+  - 미디어 독립적 : 자원의 특성과 무관
+    - 자원(resource) : HTTP 가 요청하는 대상 
+    - 미디어 타입(media type), MIME 타입(Multipurpose Internet Mail Extensions Type) : 메시지로 주고받는 자원의 종류
+      - `type/subtype;parameter=value` ex. application/json, text/html;charset=UTF-8, \*/\*
+      - 타입(type) : 데이터의 유형
+      - 서브타입(subtype) : 타입의 세부 유형
+      - parameter, value : 부사적인 설명
+  - 상태를 유지하지 않음(스테이트리스; stateless) : 서버는 HTTP 요청을 보낸 클라이언트의 상태를 기억하지 않음
+    - 확장성(scalability) : 언제든 요철할 서버를 추가할 수 있음
+    - 견고성(robustness) : 서버 중 하나에 문제가 생겨도 다른 서버로 대체 가능
+  - 지속 연결(persistent connection)
+    - HTTP 1.1 이상에서 지원
+    - keep-alive. 즉 하나의 TCP 연결로 여러 개의 요청, 응답을 주고받을 수 있음
+- HTTP 메시지 구조 (280p)
