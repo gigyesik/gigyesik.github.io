@@ -723,3 +723,29 @@
 ## 06. 실습으로 복습하는 네트워크 (332p~)
 
 ### 06-1. 와이어샤크 설치 및 사용법 (334p~)
+
+- 와이어샤크(WireShark) : 패킷 캡처 프로그램
+- 와이어샤크 설치
+  - 윈도우
+  - 맥 OS
+- 와이어샤크 사용
+  - HTTP 패킷 (아래에서부터) 캡슐화
+    - HTTP(Hypertext Transfer Protocol)
+      - 메서드, Host, Connection 등
+    - TCP(Transmission Control Protocol)
+      - Source Port, Destination Port, Sequence Number, Acknowledge Number 등 
+    - IPv4(Internet Protocol Version 4)
+    - 이더넷 프레임(Ethernet II)
+      - MAC 주소(Destination, Source), 타입/길이(Type)
+- 패킷 필터
+  - eth : Ethernet
+  - ip : Internet Protocol Version 4(IPv4)
+  - ipv6 : Internet Protocol Version 6(IPv6)
+  - tcp : Transmission Control Protocol(TCP)
+  - udp : User Datagram Protocol(UDP)
+  - http : Hypertext Transfer Protocol(HTTP)
+  - tls : Transport Layer Security(TLS)
+  - 등등
+
+### 06-2. 와이어샤크를 통한 프로토콜 분석 (360p~)
+
