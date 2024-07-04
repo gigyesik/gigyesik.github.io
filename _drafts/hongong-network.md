@@ -523,4 +523,81 @@
   - 지속 연결(persistent connection)
     - HTTP 1.1 이상에서 지원
     - keep-alive. 즉 하나의 TCP 연결로 여러 개의 요청, 응답을 주고받을 수 있음
-- HTTP 메시지 구조 (280p)
+- HTTP 메시지 구조
+  - 시작 라인(start-line)
+    - 요청 라인(request-line) : HTTP 요청 메시지인 경우
+      - `메서드 (공백) 요청 대상 (공백) HTTP 버전 (줄바꿈)`
+      - 메서드(method) : 작업의 종류. GET, POST, PUT, DELETE 등
+      - 요청 대상(request-target) : 요청을 보낼 서버의 자원. 쿼리가 포함된 URI 경로
+      - HTTP 버전(HTTP-version) : 사용된 HTTP 버전. HTTP/<버전> 형식
+    - 상태 라인 : HTTP 응답 메시지인 경우
+      - `HTTP 버전 (공백) 상태 코드 (공백) 이유 구문(선택적) (줄바꿈)`
+      - 상태 코드(status code) : 요청 결과를 나타내는 세 자리 정수
+      - 이유 구문(reason phrase) : 상태 코드에 대한 문자열 형태의 설명
+  - 필드 라인, 헤더 라인
+    - HTTP 헤더(HTTP header) : `헤더 이름(header-name):헤더 값(header-value)`
+    - HTTP 통신에 필요한 부가 정보
+  - 메시지 본문(message-body)
+- HTTP 메서드
+  - GET : 특정 자원 조회
+    - 요청 : 요청 대상 + Host 헤더
+    - 응답 : 요청한 자원
+    - 요청에 메시지 본문(message-body) 미포함
+  - HEAD : GET 메서드와 동일하나, 응답에 메시지 본문 없음
+  - POST : 서버에 작업 요청
+    - 서버에 새로운 자원을 생성하는 경우
+    - 응답에 Location 헤더 포함(생성된 자원의 위치)
+  - PUT : 요청 자원이 없다면 메시지 본문으로 새롭게 생성, 있으면 메시지 본문으로 대체
+  - PATCH : 부분적 수정
+  - DELETE : 특정 자원 삭제
+  - API 문서 : URL 요청에 대한 서버의 응답 문서
+- HTTP 상태 코드 (응답 메시지)
+  - 200번대 : 성공 상태 코드
+    - 200 OK : 요청 성공
+    - 201 Created : 요청 성공, 새로운 자원 생성
+    - 202 Accepted : 요청 수신 완료, 요청 작업 미완료 (요청 결과 곧바로 응답하지 못하는 상황)
+    - 204 No Content : 요청 성공, 메시지 본문으로 표시할 데이터 없음
+  - 300번대 : 리다이렉션(redirection)
+    - 리다이렉션 : 클라이언트의 요청을 다른 곳(URL 또는 캐시)으로 이동시키는 것
+      - 영구적 리다이렉션(permanent redirection) : 자원 완전 이동, 경로 재지정
+      - 일시적 리다이렉션(temporary redirection) : 자원 위치 임시 변경 또는 임시 사용 URL 이 필요한 경우
+    - 301 Moved Permanently : 영구적 리다이렉션. 메서드 변경될 수 있음
+    - 308 Permanent Redirect : 영구적 리다이렉션. 메서드 변경되지 않음(301보다 명시적)
+    - 302 Found : 일시적 리다이렉션. 메서드 변경될 수 있음
+    - 303 See Other : 일시적 리다이렉션. 메서드 GET 으로 변경
+    - 307 Temporary Redirect : 일시적 리다이렉션. 메서드 변경되지 않음(302보다 명시적)
+  - 400번대 : 클라이언트 에러
+    - 400 Bad Request : 클라이언트의 요청이 잘못된 경우
+    - 401 Unauthorized : 요청한 자원에 대한 유효한 인증이 없음
+    - 403 Forbidden : 요청이 서버에 의해 거부됨(접근 권한이 없는 경우. 인가)
+      - 인증(authentication) : 자신이 누구인지 증명하는 것 
+      - 인가(authorization) : 인증된 주체에 작업을 허용하는 것(권한 부여)
+    - 404 Not Found : 요청 자원을 찾을 수 없음
+    - 405 Method Not Allowed : 요청 메서드를 지원하지 않음
+  - 500번대 : 서버 에러
+    - 500 Internal Server Error : 요청을 처리할 수 없음
+    - 502 Bad Gateway : 중간 서버의 통신 오류
+    - 503 Service Unavailable : 현재 요청 처리 불가능. 추후 사용 가능할 수도 있음
+- HTTP 의 역사
+  - HTTP/0.9 
+    - GET 만 사용 가능
+    - 요청 메시지 한 줄
+  - HTTP/1.0  
+    - HEAD, POST 도입
+    - 헤더 지원 시작
+    - 지속 연결(persistent connection) 미지원 : 요청 때마다 연결 새로 생성
+  - HTTP/1.1
+    - 지속 연결 공식 지원
+    - 파이프라이닝 지원(응답 수신 전 다음 요청 보내기 가능)
+    - 콘텐츠 협상 기능
+  - HTTP/2.0
+    - 헤더 압축 전송
+    - 바이너리 데이터 기반(이전 버전은 텍스트 기반)
+    - 서버 푸시(server push) : 클라이언트가 요청하지 않더라도 자원을 미리 전송
+    - HOL 블로킹(Head-Of-Line blocking) 완화
+      - HOL 블로킹 : 같은 큐에서 첫 번째 패킷의 처리 지연으로 나머지 패킷도 모두 지연되는 문제
+      - 멀티플렉싱(multiplexing) : 스트림(stream)을 이용해 데이터 병렬 전송
+  - HTTP/3.0
+    - UDP 기반 구현된 QUIC(Quick UDP Internet Connection) 프르토콜 기반으로 동작(빠름)
+
+### 05-3. HTTP 헤더와 HTTP 기반 기술 (308p~)
