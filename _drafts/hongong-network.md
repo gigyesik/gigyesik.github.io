@@ -831,4 +831,91 @@
       - Sequence Number : 3588415413
       - Acknowledgement Number : 697411257
   - TCP 연결 종료 (connection-close)
-    - 
+    - FIN (1)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:3372
+      - Flags
+        - Fin : 1
+    - ACK (2)
+      - Source : 192.168.0.1:3372
+      - Destination : 10.10.10.1:80
+      - Flags
+        - Acknowledgement : 1
+    - FIN (3)
+      - Source : 192.168.0.1:3372
+      - Destination : 10.10.10.1:80
+      - Flags
+        - Fin : 1
+    - ACK (4)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:3372
+      - Flags
+        - Acknowledgement : 1
+  - TCP 재전송 (tcp-retransmission)
+    - 1 (성공)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:54436
+      - Sequence Number : 2530489553
+      - Acknowledgement Number : `3714426508`
+    - 2 (유실)
+      - Source : 192.168.0.1:54436
+      - Destination : 10.10.10.1:80
+      - Sequence Number : `3714426508`
+      - Acknowledgement Number : `2530491013`
+    - 3 (중복 ACK. 유실되지 않았다면 2번 패킷의 Acknowledgement Number 를 알고 있어야 함)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:54436
+      - Sequence Number : 2530504153
+      - Acknowledgement Number = `3714426508`
+    - 4 (중복 1)
+      - Source : 192.168.0.1:54436
+      - Destination : 10.10.10.1:80
+      - Sequence Number : 3714426508
+      - Acknowledgement Number : `2530491013`
+    - 5 (중복 ACK)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:54436
+      - Sequence Number : 2530505613
+      - Acknowledgement Number : `3714426508`
+    - 6 (중복 2)
+      - Source : 192.168.0.1:54436
+      - Destination : 10.10.10.1:80
+      - Sequence Number : 3714426508
+      - Acknowledgement Number : `2530491013`
+    - 7 (중복 ACK)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:54436
+      - Sequence Number : 2530507073
+      - Acknowledgement Number : `3714426508`
+    - 8 (중복 3)
+      - Source : 192.168.0.1:54436
+      - Destination : 10.10.10.1:80
+      - Sequence Number : 3714426508
+      - Acknowledgement Number : `2530491013`
+    - 9 (중복 3번 일어났으므로 빠른 재전송, 빠른 회복)
+      - Source : 10.10.10.1:80
+      - Destination : 192.168.0.1:54436
+      - Sequence Number : `2530491013`
+      - Acknowledgement Number : 3714426508
+- HTTP 분석 (http-request-response)
+  - Hypertext Transfer Protocol
+    - 1 (요청)
+      - Request Method : GET
+      - Request URI : /
+      - Host : info.cern.ch\r\n
+        - \r\n : 캐리지 리턴(Carriage Return. 오른쪽 이동 -> \r) + 라인 피드(Line Feed. 줄바꿈 -> \n)
+    - 2 (응답)
+      - Status Code : 200
+      - Content-Type : text/html\r\n
+      - Line-based text data : html 문서의 내용
+    - 3 (요청)
+      - Request Method : GET
+      - Request URI : /hypertext/WWW/TheProject.html
+        - Referer : http://info.cern.ch/\r\n
+    - 5 (응답)
+      - Status Code : 200
+      - Content-Type : text/html\r\n
+
+## 07. 네트워크 심화 (380p~)
+
+### 07-1. 안정성을 위한 기술 (382p~)
