@@ -756,36 +756,11 @@
         - Source Address(송신지 IP 주소) : 10.0.0.1
         - Destination Address(수신지 IP 주소) : 10.0.0.2
         - Identification(식별자) : 0x2c2e(11310)
-        - 1
+        - 1~6
           - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500 
           - Flags(플래그)
             - MF(more fragment) : 1
-            - Fragment Offset(단편화 오프셋) : 0
-        - 2
-          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
-          - Flags(플래그)
-            - MF(more fragment) : 1
-            - Fragment Offset(단편화 오프셋) : 1480
-        - 3
-          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
-          - Flags(플래그)
-            - MF(more fragment) : 1
-            - Fragment Offset(단편화 오프셋) : 2960
-        - 4
-          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
-          - Flags(플래그)
-            - MF(more fragment) : 1
-            - Fragment Offset(단편화 오프셋) : 4440
-        - 5
-          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
-          - Flags(플래그)
-            - MF(more fragment) : 1
-            - Fragment Offset(단편화 오프셋) : 5920
-        - 6
-          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
-          - Flags(플래그)
-            - MF(more fragment) : 1
-            - Fragment Offset(단편화 오프셋) : 7400
+            - Fragment Offset(단편화 오프셋) : 0, 1480, 2960, 4440, 5920, 7400
         - 7
           - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 120
           - Flags(플래그)
@@ -805,3 +780,31 @@
       - Internet Control Message Protocol(ICMP)
         - 14
           - Type, Code : 0, 0 -> 에코 응답 메시지
+  - IPv6 단편화 + ICMP (ipv6-fragmentation)
+    - 1~2
+      - Internet Protocol Version 6(IPv6)
+        - Source Address : 20f4:c750:2f42:53df::11:0
+          - 20f4:c750:2f42:53df:0000:0000:0011:0000
+        - Destination Address : 26f7:f750:2ffb:53df::1001
+          - 26f7:f750:2ffb:53df:0000:0000:0000:1001
+        - Next Header : UDP(17) -> 캡슐화(단편화되지 않음)
+      - User Datagram Protocol(UDP)
+        - Source Port : 58677
+        - Destination Port : 58677
+        - Length : 126, 39
+    - 3~6
+      - Internet Protocol Version 6(IPv6)
+        - Source Address : 26f7:f750:2ffb:53df::1001
+        - Destination Address : 20f4:c750:2f42:53df::11:0
+        - Next Header : Fragment Header for IPv6(44) -> 단편화됨
+          - Fragment Header For IPv6
+            - Next Header : UDP(17) -> 캡슐화
+            - Identification : 0xf88eb466
+            - Offset : 0, 181, 362, 543
+      - User Datagram Protocol(UDP)
+        - 6
+          - Source Port : 58677
+          - Destination Port : 58677
+          - Length : 1456
+- TCP 분석
+- 
