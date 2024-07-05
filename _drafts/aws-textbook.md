@@ -41,3 +41,36 @@
     - 퍼블릭 클라우드와 프라이빗 클라우드 혼합
 
 ### 1.2. AWS 서비스 (24p~)
+
+- 1.2.1. AWS 소개
+  - 리전(region) : 클라우드 서비스를 위해 자원이 모여 있는 물리적 데이터 센터의 지리적 위치(지역)
+  - 가용 영역(availability zone) : 리전 내 구성되는 개별 데이터 센터
+- 1.2.2. AWS 서비스 라인업
+  - AWS 컴퓨팅
+    - 서버 자원에 대한 가상 머신 생성, 비용 및 용량 관리
+    - Amazon Elastic Compute Cloud(Amazon EC2)
+  - AWS 네트워킹 및 콘텐츠 전송
+    - 내, 외부 통신 네트워크 서비스
+    - Amazon Virtual Private Cloud(VPC)
+    - Amazon CloudFront
+    - Amazon Route53
+  - AWS 스토리지
+    - 클라우드에 데이터 저장
+    - Amazon Simple Storage Service(S3)
+    - Amazon Elastic File System(EFS)
+    - Amazon Elastic Block Store(EBS)
+  - AWS 데이터베이스
+    - 데이터베이스 엔진
+    - Amazon Relational Database Service(RDS)
+    - Amazon Aurora
+    - Amazon DynamoDB
+  - AWS 보안 자격 증명 및 규격 준수
+    - 사용자 자격 증명 및 관리
+    - 데이터, 네트워크, 어플리케이션 보호
+    - 위협 탐지 및 모니터링
+    - AWS Identity & Access Management(IAM)
+- 1.2.3. AWS 과금 체계
+  - Pay Per Use : IT 자원을 사용한 만큼 비용 지불
+  - 처음 가입시 프리 티어(free-tier) 정책
+
+### 1.3. (실습) AWS 가입하기 - 프리 티어 (27p~)
