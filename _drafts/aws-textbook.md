@@ -74,3 +74,13 @@
   - 처음 가입시 프리 티어(free-tier) 정책
 
 ### 1.3. (실습) AWS 가입하기 - 프리 티어 (27p~)
+
+- 1.3.1. AWS 계정 생성
+- 1.3.2. AWS 관리 콘솔
+  - AWS 관리 콘솔(management console) : 웹 기반
+  - cf. AWS CLI(Command Line Interface) : 셸 프로그램 명령어 기반
+  - cf. AWS IaC(Infrastructure as Code) : 코드 기반
+
+## 2장. AWS 컴퓨팅 서비스 (37p~)
+
+### 2.1. AWS 컴퓨팅 서비스 (38p~)
