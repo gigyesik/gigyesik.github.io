@@ -1029,3 +1029,27 @@
     - 암호화된 메시지 송수신 (Application Data)
 
 ### 07-3. 무선 네트워크 (408p~)
+
+- 전파와 주파수
+  - 전파(radio wave) : 3kHz ~ 3THz 사이의 진동수를 갖는 전자기파
+  - 통신에 사용되는 전파에는 주파수 대역이 정해져 있음(국가마다 다름)
+- 와이파이와 802.11
+  - IEEE 802.11 : LAN 환경에서의 무선 통신 표준
+    - 주파수 대역
+      - 2.4GHz : 더 느리고 간섭 덜함
+      - 5GHz : 더 빠르고 간섭 더함
+      - 채널(channel) : 하위 주파수 대역(간섭 방지)
+    - 변조(modulation) : 정보를 원하는 형태의 신호로 변환하는 것
+    - 복조(demodulation) : 변조된 신호를 원래의 정보로 다시 변환하는 것
+  - 와이파이(Wi-Fi)
+    - Wi-Fi Alliance 라는 비영리 단체의 브랜드 이름
+    - IEEE 802.11 표준을 준수하는 무선 LAN 기술
+- AP 와 서비스 셋
+  - AP(Access Point) : 무선 통신 기기들을 연결하여 무선 네트워크를 구성하는 장치
+  - 인프라스트럭처 모드(infrastructure mode) : AP 를 경유하여 통신이 이루어지는 무선 네트워크 통신 방식
+    - cf. 애드 혹 모드(Ad Hoc mode) : AP 간섭 없이 호스트 간 일대일로 무선 통신하는 모드
+  - 서비스 셋(Service Set) : 무선 네트워크를 이루는 AP 와 여러 장치들의 집합
+    - 서비스 셋 식별자(SSID; Service Set Identifier) : 서비스 셋 구분자. 와이파이 무선 네트워크(AP) 이름
+    - BSS(Basic Service Set) : 하나의 AP 로 구성된 무선 LAN
+    - ESS(Extended Service Set) : 여러 AP 로 구성된 무선 LAN
+    - 비컨 프레임(beacon frame) : AP 가 자신을 주기적으로 알리는 브로트캐스트 메시지
