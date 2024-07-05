@@ -968,3 +968,64 @@
       - 캐시 저장, 로드 밸런서로 동작 가능
 
 ### 07-2. 안전성을 위한 기술 (394p~)
+
+- 암호와 인증서
+  - 암호화(encryption) : 원문 데이터를 알아볼 수 없는 형태로 변경하는 것
+  - 복호화(decryption) : 암호화된 데이터를 원문 데이터로 되돌리는 과정
+  - 대칭 키 암호화(symmetric key cryptography)
+    - 암호화와 복호화에 동일한 키 사용
+    - 키 유출시 보안 상실
+  - 공개 키 암호화(public key cryptography), 비대칭 키 암호화(asymmetric key cryptography)
+    - 공개 키(public key) : 암호화를 위한 키. 유출 가능
+    - 개인 키(private key) : 복호화를 위한 키. 유출 안됨
+    - 과정 (호스트 A -> B)
+      - A -> B : 공개 키 요청
+      - B -> A : 공개 키 응답
+      - A -> B : 공개 키로 암호화한 데이터 전달
+      - B : 개인 키로 복호화한 데이터 확인
+    - 대칭 키 암호화에 비해 부하가 큼
+  - 세션 키(session key) 암호화 : 대칭 키 + 공개 키
+    - 공개 키로 대칭 키를 암호화
+    - 개인 키로 암호화된 대칭 키 복호화
+    - 대칭 키 안전하게 공유 + 대칭 키를 빠르게 암호화/복호화
+  - 인증서와 디지털 서명
+    - 공개 키 인증서(public key certificate) : 공개 키와 공개 키의 유효성을 입증하기 위한 문서
+      - 서명 값(signature) : 인증 기관의 공개 키에 대한 인증
+        - 인증서 내용의 해시 값(지문. fingerprint)을 CA의 개인 키로 암호화
+        - 해시 값 : 해시 함수(MD5, SHA-1, SHA-256 등)를 적용시킨 값
+    - 인증 기관(CA; Certification Authority) : 인증서 발급 기관
+      - IdenTrust, DigiCert, GlobalSign 등
+    - 디지털 서명(digital signature) 과정
+      - 서버로부터 인증서 + 서명 값 수신
+      - 인증서와 서명 값 분리 -> 인증서 + 서명 값
+      - 서명 값은 '개인 키'로 암호화 했으므로 CA의 '공개 키'로 복호화 가능 -> 인증서 내용 해시 값
+      - 인증서에 해시 함수 적용 -> 인증서 내용 해시 값
+      - 두 값 비교 -> 일치한다면 공개 키 유효성 입증
+- HTTPS: SSL 과 TLS
+  - SSL : Secure Socket Layer. 인증서 암호화 수행
+  - TLS : Transport Layer Security. SSL 계승
+  - HTTPS(HTTP over TLS) : SSL/TLS 사용 프로토콜. HTTP 메시지에 보안 적용
+    - TCP three-way handshake
+      - SYN, SYN + ACK, ACK
+    - TLS handshake
+      - 클라이언트 -> 서버
+        - ClientHello
+          - 지원되는 TLS 버전
+          - 암호 스위트(cipher suite) : 사용 가능한 암호화 방식과 해시 함수
+            - ex. TLS_AES(알고리즘)_128_GCM_SHA256(해시 함수)
+          - 키를 만들기 위해 사용할 클라이언트의 난수
+      - 서버 -> 클라이언트 
+        - ServerHello
+          - 선택된 TLS 버전
+          - 암호 스위트
+          - 키를 만들기 위해 사용할 서버의 난수
+        - Certificate : 인증서
+        - CertificateVerify : 디지털 서명
+        - Finished
+        - Application Data (TLS 1.3)
+      - 클라이언트 -> 서버
+        - Finished
+        - Application Data (TLS 1.3)
+    - 암호화된 메시지 송수신 (Application Data)
+
+### 07-3. 무선 네트워크 (408p~)
