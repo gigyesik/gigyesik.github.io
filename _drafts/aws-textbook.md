@@ -84,3 +84,17 @@
 ## 2장. AWS 컴퓨팅 서비스 (37p~)
 
 ### 2.1. AWS 컴퓨팅 서비스 (38p~)
+
+- 2.1.1. 컴퓨팅 정의
+  - 컴퓨팅(computing) : 계산하고 답을 구하고 추정하는 행위
+  - 서버(server) : 컴퓨팅을 목적으로 특화된 장비(device)
+  - 워크로드(workload) : 컴퓨팅 리소스의 처리 작업
+- 2.1.2. AWS 컴퓨팅 서비스
+  - AWS 컴퓨팅 서비스 : 퍼블릭 클라우드에서 컴퓨팅 자원을 활용하여 워크로드를 수행하는 서비스
+  - EC2(Elastic Compute Cloud) : 클라우드 환경에서 인스턴스(instance) 라는 가상 머신(Virtual Machine; VM) 형태로 서버 자원을 제공
+  - ECS(Elastic Container Service) : EC2 기반 클러스터에서 실행되는 컨테이너의 배포, 스케줄링(scheduling), 스케일링(scaling) 서비스
+  - Lambda : 서버리스(serverless) 컴퓨팅 서비스
+    - 서버리스 : 서버 설정 없이 환경만 제공. 코드만 실행
+  - Lightsail : 독립적 환경 제공 컴퓨팅 서비스
+
+### 2.2. Amazon EC2 소개 (39p~)
