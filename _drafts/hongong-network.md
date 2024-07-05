@@ -807,4 +807,28 @@
           - Destination Port : 58677
           - Length : 1456
 - TCP 분석
-- 
+  - TCP 연결 수립 (3-way-handshake)
+    - SYN (1)
+      - Source : 192.168.0.1:49859 (dynamic port)
+      - Destination : 10.10.10.1:80 (well-known port)
+      - Sequence Number : 3588415412
+      - Flags
+        - SYN : 1
+      - Options
+        - MSS(Maximum Segment Size) : 1460 bytes
+        - SACK(Selective ACK) : permitted
+    - SYN, ACK (2)
+      - Source : 10.10.10.1:80 (well-known port)
+      - Destination : 192.168.0.1:49859 (dynamic port)
+      - Sequence Number : 697411256
+      - Acknowledgement Number : 3588415413
+      - Flags
+        - SYN : 1
+        - Acknowledgement : 1
+    - ACK (3)
+      - Source : 192.168.0.1:49859 (dynamic port)
+      - Destination : 10.10.10.1:80 (well-known port)
+      - Sequence Number : 3588415413
+      - Acknowledgement Number : 697411257
+  - TCP 연결 종료 (connection-close)
+    - 
