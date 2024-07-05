@@ -749,3 +749,59 @@
 
 ### 06-2. 와이어샤크를 통한 프로토콜 분석 (360p~)
 
+- IP 분석
+  - IPv4 단편화 + ICMP (ipv4-fragmentation)
+    - 1~7
+      - Internet Protocol Version 4(IPv4)
+        - Source Address(송신지 IP 주소) : 10.0.0.1
+        - Destination Address(수신지 IP 주소) : 10.0.0.2
+        - Identification(식별자) : 0x2c2e(11310)
+        - 1
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500 
+          - Flags(플래그)
+            - MF(more fragment) : 1
+            - Fragment Offset(단편화 오프셋) : 0
+        - 2
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
+          - Flags(플래그)
+            - MF(more fragment) : 1
+            - Fragment Offset(단편화 오프셋) : 1480
+        - 3
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
+          - Flags(플래그)
+            - MF(more fragment) : 1
+            - Fragment Offset(단편화 오프셋) : 2960
+        - 4
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
+          - Flags(플래그)
+            - MF(more fragment) : 1
+            - Fragment Offset(단편화 오프셋) : 4440
+        - 5
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
+          - Flags(플래그)
+            - MF(more fragment) : 1
+            - Fragment Offset(단편화 오프셋) : 5920
+        - 6
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 1500
+          - Flags(플래그)
+            - MF(more fragment) : 1
+            - Fragment Offset(단편화 오프셋) : 7400
+        - 7
+          - Length(이더넷 프레임 헤더(14) + IP 헤더(20) + 데이터) : 120
+          - Flags(플래그)
+            - MF(more fragment) : 0
+            - Fragment Offset(단편화 오프셋) : 8880
+      - Internet Control Message Protocol(ICMP)
+        - 7
+          - Type, Code : 8, 0 -> 에코 요청 메시지
+    - 8~14 
+      - Internet Protocol Version 4(IPv4)
+        - Source Address(송신지 IP 주소) : 10.0.0.2
+        - Destination Address(수신지 IP 주소) : 10.0.0.1
+        - Identification(식별자) : 0x2aad(10925)
+        - 14
+          - Flags(플래그)
+            - MF(more fragment) : 0 
+      - Internet Control Message Protocol(ICMP)
+        - 14
+          - Type, Code : 0, 0 -> 에코 응답 메시지
