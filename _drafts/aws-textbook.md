@@ -152,3 +152,70 @@
   - 스팟 인스턴스 : 미사용 중인 인스턴스에 대해 경매 방식으로 할당
 
 ### 2.3. (실습) Amazon EC2 인스턴스 배포 및 접근하기 (50p~)
+
+- 준비 : SSH(Secure SHell)
+- EC2 키 페어 내려받기 : EC2 -> 네트워크 및 보안 -> 키 페어 -> 키 페어 생성
+- 2.3.1. AMI 를 이용한 EC2 인스턴스 배포하기
+  - EC2 대시보드 -> 인스턴스 시작
+  - AMI : Amazon Linux 2 AMI (HVM)
+  - 인스턴스 유형 : t2.micro
+  - 키 페어 : 위에서 생성한 키 페어
+  - 네트워크 설정 : 기본 보안 그룹(default)
+  - 스토리지 구성 : 8GiB gp2
+- 2.3.2. SSH 로 EC2 인스턴스에 접속하여 웹 서비스 설정하기
+  - SSH 접속
+    - 터미널 -> 키 페어 파일 폴더로 이동
+    - `ssh -i [키 이름] ec2-user@[public IP]`
+    - 주의 : 보안 그룹 인바운드 규칙에 ssh 내 IP 추가
+  - 샘플 웹서비스 배포
+    - 관리자 권한으로 변경 : `sudo su -`
+    - http 데몬 설치 : `yum install httpd -y`
+    - http 데몬 실행 : `systemctl start httpd`
+    - 웹 서비스 내려받기
+- 2.3.3. EC2 인스턴스에 생성된 웹 서비스 접속하기
+  - 주의 : 보안 그룹 인바운드 규칙에 http 내 IP 추가
+  - 브라우저에서 public ip 주소로 접속
+- 2.3.4. EC2 인스턴스의 모니터링 설정하기
+  - 수동 모니터링
+    - EC2 -> 모니터링 탭
+    - EC2 -> 모니터링 -> 대시보드에 추가 -> 새 대시보드 생성 -> CloudWatch 대시보드 생성
+  - 자동 모니터링
+    - EC2 -> 모니터링 탭 -> 세부 모니터링 관리 -> 활성화 체크 -> 저장
+    - CloudWatch -> 경보 생성 -> 지표 선택 -> 그래프로 표시된 지표
+      - ec2 이름 / 'CPUUtilization' 지표 선택
+      - 그래프로 표시된 옵션 탭 -> 기간 '1분'
+      - 옵션 탭 -> 위젯 유형 '누적 면적' -> 지표 선택
+      - 조건
+        - 임계값 유형 : 정적
+        - 경보 조건 : 보다 큼
+        - ...보다 : 50
+        - 추가 구성 -> 누락된 데이터 처리 : 누락된 데이터를 양호(임계값 위반 안 함)(으)로 처리
+      - 작업 구성
+        - 경보 상태 트리거 : 경보 상태
+        - SNS 주제 선택 : 새 주제 생성
+          - 새 주제 생성 : EC2_CPU_High_Alarm
+        - 알림을 수신할 이메일 엔드포인트 : gigyesik@gmail.com
+        - EC2 작업
+          - 경보 상태 트리거 : 경보 상태
+          - 다음 작업 수행 : 이 인스턴스 재부팅
+      - 이름 및 설명 추가 -> 경보 이름 : ec2_test_CPU_High_Alarm
+    - EC2 에 부하 발생시키기
+      - 부하 설정 툴 설치
+        - `amazon-linux-extras install -y epel`
+        - `yum install -y stress-ng`
+      - 부하 70% 발생
+        - `stress-ng --cpu 1 --cpu-load 70% --timeout 10m --metrics --times --verify`
+    - 메일 전송 후 재부팅됨
+- 2.3.5. (번외) 리눅스 명령어를 사용하여 EC2 인스턴스 정보 확인하기
+  - CPU 정보 확인 : `cat /proc/cpuinfo | grep name`
+  - 메모리 용량 확인 : `cat /proc/meminfo | grep MemTotal`
+  - 프라이빗 IP 주소 확인 : `ip -br -c addr show eth0`
+  - 퍼블릭 IP 주소 확인 : `curl ipinfo.ip/ip`
+  - 스토리지 확인(EBS 볼륨) : `lsblk`, `df -hT -t xfs`
+- 2.3.6 실습을 위해 생성된 모든 자원 삭제하기
+  - EC2 -> 인스턴스 -> 인스턴스 종료
+  - CloudWatch -> 모든 경보 -> 작업 -> 삭제
+
+## 3장. AWS 네트워킹 서비스 (71p~)
+
+### 3.1. 네트워킹이란 (72p~)
