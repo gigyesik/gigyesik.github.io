@@ -219,3 +219,50 @@
 ## 3장. AWS 네트워킹 서비스 (71p~)
 
 ### 3.1. 네트워킹이란 (72p~)
+
+- 3.1.1. 네트워킹 정의
+  - 네트워킹(networking) : IT 자원간 연결하여 통신하는 환경
+- 3.2.2. 네트워킹 요소
+  - OSI 7계층
+    - 1계층 
+      - 물리 계층(physical layer)
+      - ex. 1000BASE-TX
+    - 2계층
+      - 데이터링크 계층(data link layer)
+      - ex. Ethernet, MAC
+    - 3계층
+      - 네트워크 계층(network layer)
+      - ex. IP, ICMP
+    - 4계층
+      - 전송 계층(transport layer)
+      - ex. TCP, UDP
+    - 5계층
+      - 세션 계층(session layer)
+      - ex. SSL, TLS
+    - 6계층
+      - 표현 계층(presentation layer)
+      - ex. ASCII, JPG
+    - 7계층
+      - 응용 계층(application layer)
+      - ex. HTTP, SSH, DNT, FTP
+  - IP 주소와 서브넷
+    - IP(Internet Protocol) 주소 : 인터넷상에서 IP 자원을 식별하는 고유한 주소
+      - 퍼블릭 IP 주소 : 인터넷 서비스 공급자(ISP) 에서 제공하는 공인 IP 주소
+      - 프라이빗 IP 주소 : 독립된 네트워크 내부에서만 사용하는 네트워크 관리자가 제공하는 사설 IP 주소
+        - 클래스 A : 10.0.0.0 ~ 10.255.255.255
+        - 클래스 B : 172.16.0.0 ~  172.31.255.255
+        - 클래스 C : 192.168.0.0 ~ 192.168.255.255
+      - 고정 IP 주소 : 네트워크 관리자가 수동으로 할당
+      - 유동 IP 주소 : IP 주소 범위에 따라 동적으로 할당
+        - DHCP(Dynamic Host Configuration Protocol) 를 통해 임대하는 방식으로 할당
+    - 서브넷(subnet) : 부분 네트워크
+      - 서브넷 마스크(subnet mask) : 서브넷 식별값
+        - 1은 네트워크 영역, 0은 호스트 영역 (255.255.255.0)
+      - IP CIDR(Classless Inter Domain Routing) : IP 주소 + 네트워크 ID 비트 수
+        - ex. 10.1.0.0/16
+  - 라우팅과 라우터
+    - 라우팅(routing) : 네트워킹 시 목적지 경로를 선택하는 작업
+    - 라우터(router) : 라우팅을 수행하는 장비
+  - TCP 와 UDP
+    - TCP(Transmission Control Protocol)
+    - UDP(User Diagram Protocol)
