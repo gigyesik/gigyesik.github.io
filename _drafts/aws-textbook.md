@@ -583,3 +583,71 @@
     - 보안 그룹 사용
 
 ### 4.2. (실습) ALB 와 NLB 를 이용한 로드 밸런싱 구성하기 (141p~)
+
+- 4.2.1. CloudFormation 소개
+  - CloudFormation : 코드 기반으로 환경을 생성하는 기술
+  - 특징
+    - IaC(Infrastructure as Code)
+      - 수동으로 자원을 만들지 않고 선언된 코드로 자원을 생성
+      - 템플릿 기반으로 재사용 가능
+      - 변경 사항 추적, 롤백 용이
+    - AWS 리소스 간 종속성 관리
+      - 템플릿에 종속성을 정의하여 관리 가능
+    - 인프라 관리의 자동화
+      - CI/CD 파이프라인과 통합 가능
+  - 구성 요소
+    - 템플릿 : AWS 인프라를 JSON 또는 YAML 형식의 코드로 정의하는 파일
+    - 스택 : CloudFormation 을 이용하여 생성하는 AWS 인프라 집합
+    - 리소스 : AWS 리소스. EC2 인스턴스, RDS 데이터베이스, S3 버킷 등
+    - 파라미터 : 스택 생성 시 전달 가능한 매개변수
+    - 이벤트 : 스택에서 발생하는 이벤트 기록
+  - 동작
+    - CloudFormation 템플릿 작성
+    - 템플릿 업로드
+    - 스택 생성 또는 업데이트
+    - 스택 모니터링
+    - 스택 삭제
+- 4.2.2. CloudFormation 으로 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - 사전 조건-템플릿 준비 : 기존 템플릿 선택
+    - 템플릿 지정
+      - 템플릿 소스 : Amazon S3 URL
+      - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter4/elblab.yaml
+    - 스택 세부 정보 지정
+      - 스택 이름 : elblab
+      - KeyName : test-gigyesik
+    - 스택 옵션 구성, 검토 : 기본값
+  - 생성 결과 확인 (CREATED_COMPLETE)
+    - VPC
+      - MyVPC : 20.40.0.0/16
+      - ELB-VPC : 10.40.0.0/16
+    - 인터넷 게이트웨이 : My-IGW, ELB-IGW
+    - 퍼블릭 라우팅 테이블
+      - MyPublicRT : My-IGW
+      - ELBPublicRT : ELB-IGW
+    - 서브넷
+      - My-Public-SN : MyVPC; 20.40.1.10/24
+      - ELBPublicSN1 : ELB-VPC; 10.40.1.0/24
+      - ELBPublicSN2 : ELB-VPA; 10.40.2.0/24
+    - 보안 그룹
+      - MySG : TCP 22, ICMP 허용
+      - ELBSG : TCP 22/80, ICMP, UDP 161 허용
+    - EC2 인스턴스
+      - MyEC2 : My-Public-SN
+      - SERVER-1 : ELB-Public-SN1
+      - SERVER-2, SERVER-3 : ELB-Public-SN2
+- 4.2.3. 기본 인프라 환경 검증하기
+  - 환경 구성
+    - VPC
+      - MyVPC
+      - ELB-VPC (각 인스턴스에 HTTP, SNMP 설치)
+        - Subnet1
+          - Server1
+        - Subnet2
+          - Server2, Server3
+    - 전부 퍼블릭 서브넷
+    - User-data 설치됨 (인스턴스 부팅 시 자동으로 수행하는 명령어 집합)
+    - HTTP(HyperText Transfer Protocol) : 데이터 전송 프로토콜. 80번 포트(TCP) 사용
+    - SNMP(Simple Network Management Protocol) : 네트워크 장비 모니터링, 관리 프로토콜. 161번 포트(UDP) 사용
+  - SERVER-1
+    - 
