@@ -649,5 +649,188 @@
     - User-data 설치됨 (인스턴스 부팅 시 자동으로 수행하는 명령어 집합)
     - HTTP(HyperText Transfer Protocol) : 데이터 전송 프로토콜. 80번 포트(TCP) 사용
     - SNMP(Simple Network Management Protocol) : 네트워크 장비 모니터링, 관리 프로토콜. 161번 포트(UDP) 사용
-  - SERVER-1
-    - 
+  - SERVER-1, 2, 3
+    - `tree /var/www/html`
+    - `cat /var/www/html/xff.php`
+  - MyEC2
+    - SERVER-1~3 의 퍼블릭 IP 를 변수로 지정
+      - `EC21 = ..`
+      - `echo $EC21`
+    - 웹 서비스 확인
+      - `curl $EC21`
+      - `curl $EC21/dev/`
+      - `curl $EC21/mgt`
+      - `curl $EC21/xff.php`
+    - SNMP 서비스 확인
+      - `snmpget -v2c -c public $EC21 1.3.6.1.2.1.1.5.0`
+      - `snmpget -v2c -c public $EC21 1.3.6.1.2.1.1.3.0`
+      - OID(Object ID) 정보
+        - 1.3.6.1.2.1.1.1.0; sysDescr : 장비 설명
+        - 1.3.6.1.2.1.1.2.0; sysObjectID : 장비 고유 ID
+        - 1.3.6.1.2.1.1.3.0; sysUpTime : 장비 부팅 ~ 현재 시간(milli-second)
+        - 1.3.6.1.2.1.1.5.0; sysName : 사용자가 설정한 장비 이름
+- 4.2.4. ALB 를 생성하고 동작 과정 확인하기
+  - ALB 생성하기
+    - EC2 -> 대상 그룹 -> 대상 그룹 생성
+      - 기본 구성
+        - 대상 유형 : 인스턴스
+        - 대상 그룹 이름 : ALB-TG
+        - VPC : ELB-VPC
+      - SERVER-1~3 선택 후 '아래에 보류 중인 것으로 포함'
+    - EC2 -> 로드 밸런서 -> 로드 밸런서 생성
+      - 로드 밸런서 유형 : Application Load Balancer
+      - 기본 구성
+        - 이름 : ALB
+      - 네트워크 매핑
+        - VPC : ELB-VPC
+        - 매핑 : apne-2a, apne-2c
+      - 보안 그룹 : elblab-..
+      - 리스너 및 라우팅 : HTTP 80 -> ALB-TG
+  - ALB 동작 확인하기
+    - MyEC2
+      - ALB DNS 이름 변수 지정
+        - `ALB=ALB-1540650224.ap-northeast-2.elb.amazonaws.com`
+        - `echo $ALB`
+      - 도메인에 질의 수행
+        - `dig $ALB +short`
+        - 두 개의 가용 영역에 생성된 ENI 유동 IP 번갈아가며 출력
+      - curl 테스트
+        - `curl $ALB`
+          - SERVER-1~3 번갈아가며 출력
+        - `for i in {1..20}; do curl $ALB --silent ; done | sort | uniq -c | sort -nr`
+          - 기본 라운드 로빈 방식으로 1/3 씩 분산되어 출력
+      - ALB 는 교차 영역 로드 밸런싱이 기본적으로 활성화되어 있음
+- 4.2.5. ALB 경로 기반 라우팅 기능을 구성하고 확인하기
+  - MyEC2
+    - `curl $ALB/dev/index.html --silent` -> SERVER-1 만 200
+    - `curl $ALB/mgt/index.html --silent` -> SERVER-2,3 만 200
+  - DEV-TG 대상 그룹 생성
+    - EC2 -> 대상 그룹 -> 대상 그룹 생성
+      - 이름 : DEV-TG
+      - VPC : ELB-VPC
+    - SERVER-1 선택 후 '아래에 보류 중인 것으로 포함'
+  - MGT-TG 대상 그룹 생성
+    - EC2 -> 대상 그룹 -> 대상 그룹 생성
+      - 이름 : MGT-TG
+      - VPC : ELB-VPC
+    - SERVER-2~3 선택 후 '아래에 보류 중인 것으로 포함'
+  - 경로 기반 라우팅 설정 규칙 추가
+    - EC2 -> 로드 밸런서 -> 리스너 및 규칙 -> 규칙 추가
+      - dev
+        - 이름 : dev
+        - 조건
+          - 조건 규칙 유형 : 경로
+          - 경로 : `/dev/*`
+        - 작업
+          - 라우팅 액션 : 대상 그룹으로 전달
+          - 대상 그룹 : DEV-TG
+        - 규칙 우선 순위 : 임의값
+      - mgt
+        - 이름 : mgt
+        - 조건
+          - 조건 규칙 유형 : 경로
+          - 경로 : `/mgt/*`
+        - 작업
+          - 라우팅 액션 : 대상 그룹으로 전달
+          - 대상 그룹 : MGT-TG
+        - 규칙 우선 순위 : 임의값
+  - 결과 확인
+    - `curl $ALB/dev/index.html --silent` -> 성공
+    - `for i in {1..3}; do curl $ALB/dev/ --silent ; done | sort | uniq -c | sort -nr` -> SERVER-1 만 응답
+    - `curl $ALB/mgt/index.html --silent` -> 성공
+    - `for i in {1..6}; do curl $ALB/mgt/ --silent ; done | sort | uniq -c | sort -nr` -> SERVER-2, 3 만 응답
+    - `for i in {1..9}; do curl $ALB --silent ; done | sort | uniq -c | sort -nr` -> 모두 균일하게 응답
+- 4.2.6. ALB 의 User-Agent 를 활용한 로드 밸런싱을 구성하고 확인하기
+  - 유동 IP 확인 -> `dig $ALB +short`
+  - 스마트폰 브라우저에서 HTTP 접근 확인
+  - EC2 -> 로드 밸런서 -> 리스너 및 규칙 -> 규칙 추가
+    - 이름 : User-Agent
+    - 조건
+      - 조건 규칙 유형 : HTTP 헤더
+      - HTTP 헤더 이름 : User-Agent
+      - HTTP 헤더 값 : `*iPhone*` 또는 `*Android*`
+    - 작업
+      - 라우팅 액션 : 고정 값 반환
+      - 응답 본문 : iPhone or Android Access Deny
+  - 결과 확인
+    - 스마트폰 접속 : iPhone or Android Access Deny
+    - MyEC2 접속 : 성공
+    - L7 로드밸런서 이므로 헤더 기반 부하분산 가능
+- 4.2.7. NLB 를 생성하고 교차 영역 로드 밸런싱 동작 확인하기
+  - EC2 -> 대상 그룹 -> 대상 그룹 생성
+    - 대상 그룹 이름 : NLB-TG
+    - 프로토콜, 포트 : UDP, 161
+    - VPC : ELB-VPC
+    - 상태 검사 프로토콜 : HTTP
+    - 고급 상태 검사 설정 : 재정의, 80
+    - SERVER-1~3 선택 후 '아래에 보류 중인 것으로 포함'
+  - EC2 -> 로드 밸런서 -> 로드 밸런서 생성
+    - 로드 밸런서 유형 : Network Load Balancer
+    - 로드 밸런서 이름 : NLB
+    - 네트워크 매핑
+      - VPC : ELB-VPC
+      - 매핑 : apne2-az1, apne2-az3
+      - 보안 그룹 : elblab-..
+      - 리스너 및 라우팅
+        - 프로토콜 : UDP
+        - 포트 : 161
+        - 대상 : NLB-TG
+  - NLB 동작 확인하기
+    - MyEC2
+      - NLB DNS 이름을 변수로 지정
+        - `NLB=NLB-ccb2792c7526f0ff.elb.ap-northeast-2.amazonaws.com`
+        - `echo $NLB`
+      - 공인 IP 주소 확인
+        - `dig $NLB +short`
+      - 공인 IP 주소 변수 저장
+        - `NLB1=..`
+      - SNMP 서비스 확인
+        - `for i in {1..60}; do snmpget -v2c -c public $NLB 1.3.6.1.2.1.1.5.0 ; done | sort | uniq -c | sort -nr`
+          - SERVER-1~3
+        - `for i in {1..60}; do snmpget -v2c -c public $NLB1 1.3.6.1.2.1.1.5.0 ; done | sort | uniq -c | sort -nr`
+          - SERVER-1
+        - `for i in {1..60}; do snmpget -v2c -c public $NLB2 1.3.6.1.2.1.1.5.0 ; done | sort | uniq -c | sort -nr`
+          - SERVER-2~3
+        - NLB 는 교차 영역 로드 밸런싱 기본값 비활성화 되어있음 (라운드 로빈으로 동작)
+    - NLB 교차 영역 로드 밸런싱 활성화
+      - EC2 -> 로드 밸런서 -> 속성 편집 -> 교차 영역 로드 밸런싱 활성화
+      - 결과 확인 -> 교차 영역 로드 밸런싱으로 동작 (NLB1, NLB2 에 요청해도 SERVER-1~3 모두 응답)
+- 4.2.8. ALB 와 NLB 의 출발지 IP 보존 확인하기
+  - ALB 는 클라이언트 출발지 IP 주소를 자신의 프라이빗 IP 주소로 변경해서 전달
+    - SERVER-1 실시간 로그
+      - `tail -f /var/log/httpd/access_log | grep -v "ELB-HealthChecker/2.0"`
+    - MyEC2 에서 SERVER-1 접속
+      - IP 주소 확인 : `curl ipinfo.io/ip`
+      - 접속 : `curl $ALB`
+    - SERVER-1 접속 패킷 덤프
+      - `tcpdump tcp port 80 -nn`
+    - 결과 : MyEC2 의 공인 IP 를 ALB 의 사설 IP 로 변환하여 기록
+    - 해결하기 : `X-Forwoarded-For` 헤더 추적
+      - SERVER-1 로그 설정 정보 확인
+        - `grep -n LogFormat /etc/httpd/conf/httpd.conf`
+      - 로그 설정 파일 수정
+        - `vi /etc/httpd/conf/httpd.conf`
+        - 196번째 줄 `%{X-Forwarded-For}i` 추가
+          - `LogFormat "%{X-Forwarded-For}i %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined`
+        - `:wq!`
+      - HTTP reload
+        - `systemctl reload httpd` 
+        - reload 와 restart 차이점
+          - restart : 해당 서비스를 종료하고 다시 시작
+          - reload : conf 설정 파일들만 새로 갱신
+      - 실시간 로그 확인시 공인 IP 확인
+  - NLB 는 클라이언트 출발지 IP 주소를 보존한 채 전달
+    - SERVER-1 패킷 덤프
+      - `tcpdump udp port 161 -nn`
+    - MyEC2 에서 SERVER-1 접속
+      - 내 IP 확인 : `curl ipinfo.io/ip`
+      - SERVER-1 접속 : `snmpget -v2c -c public $NLB 1.3.6.1.2.1.1.5.0`
+    - 결과 : MyEC2 의 공인 IP 를 보존하여 기록 (NLB 는 4L 로드 밸런서라 XFF 활용 불가)
+- 4.2.9. 실습을 위해 생성된 모든 자원 삭제하기
+  - EC2 -> 로드 밸런서 삭제
+  - EC2 -> 대상 그룹 삭제
+  - CloudFormation -> 스택 삭제
+
+## 5장. AWS 스토리지 서비스 (195p~)
+
+### 5.1. 스토리지 개요 (196p~)
