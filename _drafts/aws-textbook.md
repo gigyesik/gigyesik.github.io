@@ -918,3 +918,106 @@
   - S3 내 버킷 정책으로 관리 가능 : 특정 객체 접근
 
 ### 5.5. (실습) 다양한 AWS 스토리지 서비스 구성하기 (211p~)
+
+- 5.5.1. 실습에 필요한 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : `https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter5/storagelab.yaml`
+    - 스택 이름 : storagelab
+    - KeyName : test-gigyesik
+    - 검토
+      - `AWS CloudFormation 에서 사용자 지정 이름으로 IAM 리소스를 생성할 수 있음을 승인합니다.` 체크
+  - 현재 인프라 정보
+    - 서울 리전
+    - CH5-VPC (10.4.0.0/16)
+    - 가용 영역
+      - AZ1
+        - Public Subnet 1 (10.4.1.0/24)
+          - EC2 - STG1
+          - EBS Root Volume
+      - AZ1
+        - Public Subnet 2 (10.4.2.0/24)
+          - EC2 - STG 2
+          - EBS Rook Volume
+    - 퍼블릭 라우팅 테이블 (CH5-Public-RT)
+    - IAM Role : STGLabRoleForInstances (S3 Full 정책 연동)
+    - 보안 그룹 : TCP 22/80/249, ICMP 허용
+    - 인터넷 게이트웨이(IGW)
+  - EBS 스토리지 기본 경로 확인
+    - STG1 SSH 접속
+      - 디스크 여유 공간 확인 (disk free)
+        - `df -hT /dev/xvda1`
+      - 사용 가능한 디스크 디바이스와 마운트 포인트 확인
+        - `lsblk`
+      - 디바이스 UUID 확인
+        - `blkid`
+      - 디바이스 탑재 지점 확인
+        - `cat /etc/fstab`
+- 5.5.2. EBS 스토리지를 추가로 생성한 후 사용하기
+  - EC2 -> EBS -> 볼륨 -> 볼륨 생성
+    - 볼륨 유형 : 범용 SSD(gp3)
+    - 크기 : 20 GiB
+    - 가용 영역 : ap-northeast-2a
+    - 태그 추가
+      - 키 : Name
+      - 값 : Data1
+  - EBS -> 작업 -> 볼륨 연결
+    - 인스턴스 : EC2-STG1
+    - 디바이스 : /dev/sdf
+  - 연결된 EBS 볼륨 사용 설정
+    - 디바이스 추가 확인
+      - `lsblk`
+    - 볼륨을 포맷하여 파일 시스템 생성
+      - `mkfs -t xfs /dev/xvdf`
+    - 디렉토리를 생성한 후 마운트
+      - `mkdir /data`
+      - `mount /dev/xvdf /data`
+    - 파일을 생성한 후 확인
+      - `echo "EBS Test" > /data/memo.txt`
+      - `cat /data/memo.txt`
+    - 디바이스 확인
+      - `lsblk`
+      - `df -hT /dev/xvdf`
+  - 재부팅 이후에도 볼륨 자동 탑재 설정
+    - 파일 시스템 정보 확인
+      - `cat /etc/fstab`
+    - 장작할 볼륨 정보 확인
+      - `blkid`
+    - fstab 에 마운트 정보 입력
+      - `echo "UUID=(device UUID) /data xfs defaults,nofail 0 2" >> /etc/fstab`
+      - 자동 마운트 설정 (/etc/fstab)
+        - `(장치명) (마운트 위치) (파일 시스템) (속성) (덤프 사용 여부) (파일 시스템 체크 여부)`
+    - 다시 정보 확인
+      - `cat /etc/fstab`
+- 5.5.3. EBS 스토리지의 볼륨 크기를 변경하고 스냅샷 기능 확인하기
+  - EBS 볼륨 크기 변경하기
+    - EC2 -> EBS -> 볼륨 -> 수정
+      - 볼륨 유형 : 범용 SSD(gp3)
+      - 크기 : 20 GiB
+      - IOPS : 3000
+      - 처리량 : 125
+    - 파일 시스템 확장(파티션 조정, 파일 시스템 조정)
+      - 볼륨 상태 확인
+        - `lsblk`
+        - `df -hT /dev/xvda1`
+      - 파티션 확장(파티션 조정)
+        - `growpart /dev/xvda 1`
+      - 볼륨 상태 확인
+        - `lsblk`
+      - 파일 시스템 확장(파일 시스템 조정)
+        - `xfs_growfs -d /`
+      - 변경된 파일 시스템 확인
+        - `df -hT /dev/xvdf`
+  - EBS 스냅샷 기능 확인하기
+    - 가상 파일 생성 후 확인
+      - `fallocate -l 10G /home/10G.dummy`
+      - `df -hT /dev/xvdf`
+    - EC2 -> EBS -> 볼륨 -> 작업 -> 스냅샷 생성
+      - 설명 : FirstSnapshot
+    - EC2 -> EBS -> 스냅샷 에서 결과 확인
+    - 가상 파일 생성 후 확인
+      - `fallocate -l 5G /home/5G.dummy`
+      - `df -hT /dev/xvdf`
+    - EC2 -> EBS -> 볼륨 -> 작업 -> 스냅샷 생성
+      - 설명 : SecondSnapshot
+    - EC2 -> EBS -> 스냅샷 에서 결과 확인
+- 5.5.4. EFS 스토리지 생성하고 사용하기
