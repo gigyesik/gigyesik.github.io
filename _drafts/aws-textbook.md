@@ -1006,18 +1006,173 @@
       - 파일 시스템 확장(파일 시스템 조정)
         - `xfs_growfs -d /`
       - 변경된 파일 시스템 확인
-        - `df -hT /dev/xvdf`
+        - `df -hT /dev/xvda1`
   - EBS 스냅샷 기능 확인하기
     - 가상 파일 생성 후 확인
       - `fallocate -l 10G /home/10G.dummy`
-      - `df -hT /dev/xvdf`
+      - `df -hT /dev/xvda1`
     - EC2 -> EBS -> 볼륨 -> 작업 -> 스냅샷 생성
       - 설명 : FirstSnapshot
     - EC2 -> EBS -> 스냅샷 에서 결과 확인
     - 가상 파일 생성 후 확인
       - `fallocate -l 5G /home/5G.dummy`
-      - `df -hT /dev/xvdf`
+      - `df -hT /dev/xvda1`
     - EC2 -> EBS -> 볼륨 -> 작업 -> 스냅샷 생성
       - 설명 : SecondSnapshot
     - EC2 -> EBS -> 스냅샷 에서 결과 확인
 - 5.5.4. EFS 스토리지 생성하고 사용하기
+  - EFS -> 파일 시스템 -> 파일 시스템 생성 -> 사용자 지정
+    - 일반
+      - 이름 : cloudneta
+      - 자동 백업 활성화 : 체크 해제
+      - Infrequent Access(IA) 로 전환 : 없음
+      - 유휴 시 데이터 암호화 활성화 : 체크 해제
+    - 네트워크
+      - VPC : CH5-VPC
+      - 보안 그룹 : storagelab-MySG-.. (TCP 2049 인바운드 허용)
+  - EFS 사용 설정 (EC2-1, 2)
+    - 리전별 웹 서버 동작 확인
+      - `curl localhost`
+    - efs 디렉토리 생성
+      - `mkdir /var/www/html/efs`
+    - EFS 파일 시스템 ID 변수 지정
+      - `EFS=(파일 시스템 ID)`
+    - 마운트
+      - `mount -t efs -o tls $EFS:/ /var/www/html/efs`
+    - 마운트한 곳에 파일 생성 후 확인
+      - `echo "<html><h1>Hello from Amazon EFS</h1></html>" > /var/www/html/efs/index.html`
+      - `curl localhost/efs/`
+    - EFS Size 확인
+      - `df -hT | grep efs`
+    - EFS DNS 주소 확인 (각 AZ 에 속한 인터페이스 ID)
+      - `dig +short $EFS.efs.ap-northeast-2.amazonaws.com`
+  - EFS 를 이용하여 파일 공유
+    - EC2-1 에서 파일 생성
+      - `for i in {1..100}; do touch /var/www/html/efs/deleteme.$i; done;`
+    - EC2-2 에서 확인
+      - `ls /var/www/html/efs`
+    - EC2-2 에서 파일 삭제
+      - `rm -rf /var/www/html/efs/deleteme*.*`
+    - EC2-1 에서 확인
+      - `ls /var/www/html/efs`
+  - 현재 인프라 정보
+    - 서울 리전
+    - CH5-VPC (10.4.0.0/16)
+    - 가용 영역
+      - AZ1
+        - Public Subnet 1 (10.4.1.0/24)
+          - EC2 - STG1
+          - EBS Root Volume
+          - EBS Data Volume
+      - AZ1
+        - Public Subnet 2 (10.4.2.0/24)
+          - EC2 - STG 2
+          - EBS Rook Volume
+    - 퍼블릭 라우팅 테이블 (CH5-Public-RT)
+    - 스냅샷
+    - Amazon EFS
+    - IAM Role : STGLabRoleForInstances (S3 Full 정책 연동)
+    - 보안 그룹 : TCP 22/80/249, ICMP 허용
+    - 인터넷 게이트웨이(IGW)
+- 5.5.5. Public S3 스토리지로 외부 접근 확인하기
+  - S3 -> 버킷 -> 버킷 만들기
+    - 버킷 이름 : cloudneta1
+    - 리전 : apne-2
+    - 객체 소유권 : ACL 활성화됨
+    - 이 버킷의 퍼블릭 엑세스 차단 설정 : 체크 해제
+      - 현재 설정으로 인해 이 버킷과 그 안에 포함된 객체가 퍼블릭 상태가 될 수 있음을 알고 있습니다 : 체크
+  - 버킷 -> 업로드 -> 파일 추가 -> 이미지 파일 하나 업로드
+    - 객체 URL 로 접근시 Access Denied
+  - 외부에서 접근 허용 : 파일 -> 객체 작업 -> ACL 을 사용해 퍼블릭으로 설정 -> 퍼블릭으로 설정
+  - EC2-1 이미지 링크 추가 (/var/www/html/index.html)
+  ```html
+    <html>
+          <body>
+  
+          <h1>Cloudneta S3 Storage</h1>
+          <img src="https://cloudneta1.s3.ap-northeast-2.amazonaws.com/2024-06-09-blog-github-pages-2-quickstart-3-source-saved.png">
+          </body>
+    </html>
+  ```
+  - EC2-1 퍼블릭 IP 로 접속해서 이미지 확인
+  - 버킷 권한 자동 설정
+    - 버킷 -> 권한 탭 -> 버킷 정책 편집
+    ```json
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "PublicReadGetObject",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": [
+            "s3:GetObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::cloudneta1/*"
+          ]      
+        } 
+      ]
+    }
+    ```
+    - 현재 인프라 정보
+    - 서울 리전
+    - CH5-VPC (10.4.0.0/16)
+    - 가용 영역
+      - AZ1
+        - Public Subnet 1 (10.4.1.0/24)
+          - EC2 - STG1
+          - EBS Root Volume
+          - EBS Data Volume
+      - AZ1
+        - Public Subnet 2 (10.4.2.0/24)
+          - EC2 - STG 2
+          - EBS Rook Volume
+    - 퍼블릭 라우팅 테이블 (CH5-Public-RT)
+    - 스냅샷
+    - Amazon EFS
+    - IAM Role : STGLabRoleForInstances (S3 Full 정책 연동)
+    - 보안 그룹 : TCP 22/80/249, ICMP 허용
+    - Amazon S3 Public
+    - 인터넷 게이트웨이(IGW)
+- 5.5.6. Private S3 스토리지의 제한된 접근 및 데이터 백업하기
+  - Private 버킷 생성 (AWS CLI)
+    - EC2-1
+      - 기존 s3 조회
+        - `aws s3 ls`
+      - s3 버킷 생성 (make bucket)
+        - `aws s3 mb s3://(s3 버킷 이름)`
+      - 버킷 이름을 변수에 지정
+        - `MyS3=(버킷 이름)`
+      - 파일 생성 후 S3 에 업로드
+        - `echo "111" > /var/www/html/111.txt`
+        - `aws s3 cp /var/www/html/111.txt s3://$MyS3`
+        - `aws s3 ls s3://$MyS3`
+      - 웹 디렉토리(하위 포함)을 S3 버킷에 업로드(수동 백업) 후 확인
+        - `aws s3 sync --delete /var/www/html s3://$MyS3`
+        - `aws s3 ls s3://$MyS3 --recursive`
+      - crontab 내용 추가 (/etc/crontab)
+        - `*/1 * * * * root aws s3 sync --delete /var/www/html s3://cloudneta1-s3-private`
+      - 적용 및 추가 파일 생성
+        - `systemctl restart crond`
+        - `echo "222" > /var/www/html/222.txt`
+        - `echo "333" > /var/www/html/333.txt`
+      - 실시간 버킷 조회 후 로그 확인
+        - `while true; do aws s3 ls s3://$MyS3; date; echo "---[S3 ls]---"; sleep 3; done` 
+        - `tail -f /var/log/cron`
+      - 테스트 파일 생성 후 S3 에 업로드
+        - `echo "presigned test" > /var/www/html/presigned.txt`
+        - `aws s3 cp /var/www/html/presigned.txt s3://$MyS3`
+      - 객체 URL 로 직접 접근은 불가하나 Pre-Sign URL 생성
+        - `aws s3 presign s3://$MyS3/presigned.txt --expires-in 120`
+        - 생성된 URL 로 웹 접근 가능 확인
+- 5.5.7. 실습을 위해 생성된 모든 자원 삭제하기
+  - EC2 -> EBS -> 스냅샷 -> 스냅샷 삭제
+  - EC2 -> EBS -> 볼륨 -> Data1 볼륨 분리, 볼륨 삭제
+  - EFS -> 파일 시스템 -> 파일 시스템 삭제
+  - S3 -> 버킷 -> 비어 있음 (포맷), 삭제
+  - CloudFormation -> 스택 -> 삭제
+
+## 6장. AWS 데이터베이스 서비스 (243p~)
+
+### 6.1. 데이터베이스와 DBMS (244p~)
