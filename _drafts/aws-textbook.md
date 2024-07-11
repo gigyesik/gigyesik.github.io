@@ -1176,3 +1176,70 @@
 ## 6장. AWS 데이터베이스 서비스 (243p~)
 
 ### 6.1. 데이터베이스와 DBMS (244p~)
+
+- 6.1.1. 데이터와 데이터베이스
+  - 데이터(Data) : 측정하고 수집한 값
+  - 정보 : 데이터를 특정 목적에 따라 가공하여 의미를 부여한 결과
+  - 데이터베이스 : 데이터의 집합
+  - DBMS(DataBase Management System) : 데이터베이스 관리 시스템
+- 6.1.2. 데이터베이스 모델 유형
+  - 계층형(hierarchical)
+    - 트리(tree) 구조 기반
+    - 1:N
+    - 데이터에 빠른 접근 가능
+    - 구조 변경 유연성 떨어짐
+  - 네트워크형
+    - 1:N, 1:1, N:N
+    - 형태가 계층형에 비해 자유로움
+    - 개체간 연결에 따라 복잡성 증가
+  - 관계형(relational)
+    - column(열), row(행), 테이블
+    - 데이터 구조 변화에 쉽게 적응, 가장 보편적
+    - 시스템 자원을 많이 차지하여 속도 느림 -> 하드웨어 발전으로 해소중
+    - SQL(Structured Query Language) 사용
+  - 객체 지향형(object-oriented)
+    - object(객체)
+    - 복잡한 객체 구조, 비정형 데이터도 지원
+    - 관계형 데이터베이스와 호환성, 복잡성 문제
+- 6.1.3. 관계형 DBMS 의 SQL 언어
+  - SQL 데이터 정의
+    - CREATE : 데이블 구성, 속성 제약 정의
+    - ALTER : 생성된 테이블 속성 정의, 변경
+    - DROP : 생성된 테이블 삭제
+  - SQL 데이터 조작
+    - SELECT : 정보 조회
+    - INSERT : 데이터 삽입
+    - UPDATE : 데이터 수정
+    - DELETE : 데이터 삭제
+  - SQL 데이터 제어
+    - GRANT : 테이블 권한 허용
+    - DENY : 테이블 권한 차단
+    - REVOKE : 테이블 권한 회수
+- 6.1.4. DBMS 종류
+  - https://db-engines.com/en/ranking
+
+### 6.2. AWS 데이터베이스 서비스 (249p~)
+
+- 6.2.1. Amazon RDS
+  - Amazon RDS(Relational Database Service) : 클라우드 환경의 관계형 데이터베이스 서비스
+  - 다양한 관계형 데이터베이스 엔진 지원, SQL 사용 
+- 6.2.2. Amazon RDS 데이터 복제
+  - Multi-AZ 복제 방식
+    - 액티브-스탠바이(active-standby) 방식
+    - 스탠바이(Standby Replica)가 액티브(Primary DB)를 동기식 복제(synchronous replica)
+  - Read Replica 복제 방식
+    - 읽기 전용 데이터를 Read Replica 에 복제
+    - 비동기식 복제 사용
+    - 다른 리전에도 복제 가능
+- 6.2.3. Amazon Aurora
+  - Amazon Aurora : Amazon RDS 상에서 동작하는 AWS 자체 클라우드 데이터베이스 엔진
+  - Amazon Aurora 복제 방식 : 공유 스토리지를 통해 비동기식 복제
+- 6.2.4. Amazon DynamoDB
+  - 비관계형 데이터베이스. 키-값(key-value) 사용
+  - NoSQL 데이터베이스 (비관계형 이므로 SQL 사용하지 않음)
+- 6.2.5. Amazon ElastiCache
+  - 인-메모리(in-memory) 데이터에이스
+  - Amazon ElastiCache for Memcached : 보편적인 메모리 객체 캐싱 시스템
+  - Amazon ElastiCache for Redis : 오픈소스인 Redis 기반 구축
+
+### 6.3. (실습) 웹 서버와 Amazon RDS 연동하기 (255p~)
