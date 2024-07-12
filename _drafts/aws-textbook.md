@@ -1538,3 +1538,50 @@
 ## 8장. AWS IAM 서비스 (337p~)
 
 ### 8.1. 배경 소개 (338p~)
+
+- 8.1.1. AWS 리소스 생성하고 관리하기
+  - AWS 관리 콘솔(AWS Management Console) : 웹(Web) 기반 사용자 인터페이스(GUI)
+  - AWS 명령줄 인터페이스(AWS Command Line Interface; AWS CLI) : 셸(shell) 프로그램
+  - AWS 소프트웨어 개발 키트(Software Development Kit, SDK) : 라이브러리
+- 8.1.2. AWS API 란
+  - API 란
+    - API(Application Programming Interface) : 어플리케이션 상호작용 매개체
+    - 명세서 : 규칙을 정리한 문서
+    - 인증(authentication) : 사용자가 적법한 서명을 가졌는지 확인
+    - 인가(authorization) : 인증된 사용자가 API 권한을 수행할 수 있는지 확인
+  - AWS API 란
+    - 사용자나 어플리케이션이 AWS 서비스를 사용하기 위해 도와주는 매개채
+    - 인증, 인가를 확인한 후 AWS CloudTail 을 사용해 API 로깅
+
+### 8.2. AWS IAM (341p~)
+
+- 8.2.1. AWS IAM 이란
+  - AWS IAM(Identity & Access Management) : AWS 서비스, 리소스 인증 인가 통제 기능
+- 8.2.2. AWS IAM 구성 요소와 동작 방식
+  - 구성 요소
+    - 사용자
+      - 루트 사용자 : 해당 계정의 모든 권한을 가짐
+      - IAM 사용자(user) : 자체 자격 증명 보유
+      - 보안 주체(principal) : AWS 에 요청하는 사람 또는 어플리케이션
+    - 그룹
+      - IAM 그룹(group) : IAM 사용자 집합
+    - 역할
+      - IAM 역할(role) : 특정 권한을 가진 계정에 생성할 수 있는 IAM 자격 증명
+    - 정책
+      - IAM 정책(policy) : 요청 허용, 거부 권한 정의
+  - 인증, 인가 동작 방식
+    - 인증 : 리소스 접근시 IAM 사용자 계정에 따른 암호나 접근 키 판단
+    - 인가 : IAM 사용자의 권한 판단
+- 8.2.3. AWS IAM 사용자
+  - 루트 사용자 계정 공동 사용 -> 해킹 위험, AWS API 로깅 분석 불가
+  - IAM 사용자 권한 활용 권장
+- 8.2.4. AWS IAM 정책
+  - Effect : 명시적 정책에 대한 허용 혹은 차단
+  - principal : 접근을 허용 혹은 차단하고자 하는 대상
+  - Action : 허용 혹은 차단하고자 하는 접근 타입
+  - Resource : 요청의 목적지가 되는 서비스
+  - Condition : 명시적 조건이 유효하다고 판단될 수 있는 조건
+- 8.2.5. AWS IAM 역할
+  - IAM 역할 : 정의된 권한 범위 내에서 AWS API 를 사용할 수 있는 임시 자격 증명
+
+### 8.3. (실습) AWS IAM 사용자 생성 및 정책, 역할 동작 확인하기 (348p~)
