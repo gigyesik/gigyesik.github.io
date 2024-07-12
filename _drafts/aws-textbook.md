@@ -1243,3 +1243,116 @@
   - Amazon ElastiCache for Redis : 오픈소스인 Redis 기반 구축
 
 ### 6.3. (실습) 웹 서버와 Amazon RDS 연동하기 (255p~)
+
+- 6.3.1. CloudFormation 으로 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter6/dblab.yaml
+    - 스택 이름 : dblab
+    - KeyName : test-gigyesik
+  - 현재 인프라 구성
+    - CH6-VPC (10.6.0.0/16)
+      - CH6-Subnet1 (10.6.1.0/24) : public
+        - CH6-WebSrv (10.6.1.10)
+        - 보안 그룹 1 (TCP 22, 88, ICMP 허용)
+      - CH6-PublicRT
+      - CH6-Subnet2 (10.6.2.0/24) : private
+      - CH6-Subnet3 (10.6.3.0/24) : private
+      - CH6-PrivateRT
+      - 보안 그룹 2 (TCP 3306 허용)
+      - DB 서브넷 그룹 (DBLab-Subnet2, 3)
+      - DB 파라미터 그룹
+- 6.3.2. Amazon RDS 를 생성하고 웹 서버와 연동하기
+  - RDS1 (RDS -> 데이터베이스 생성)
+    - 엔진 옵션 : MySQL
+    - 템플릿 : 개발/테스트
+    - 배포 옵션 : 다중 AZ DB 인스턴스
+    - DB 인스턴스 식별자 : rds1
+    - 마스터 사용자 이름 : root
+    - 자격 증명 관리 : 자체 관리
+      - 마스터 암호, 암호 확인 : qwer12345
+    - DB 인스턴스 클래스 
+      - 이전 세대 클래스 포함 : 활성화
+      - 버스터블 클래스, db.t2.micro
+    - 연결 VPC : CH6-VPC
+    - 기존 VPC 보안 그룹(방화벽) : default 제거 후 dblab-CH6SG2-..
+    - 향상된 모니터링 활성화 : 체크 해제
+    - 추가 구성
+      - 초기 데이터베이스 이름 : sample
+      - DB 파라미터 그룹 : dblab-mydbparametergroup-..
+      - 백업 보존 기간 : 35일
+  - RDS2 (RDS -> 데이터베이스 생성)
+    - 엔진 옵션 : MySQL
+    - 템플릿 : 프리 티어
+    - DB 인스턴스 식별자 : rds2
+    - 마스터 사용자 이름 : root
+    - 자격 증명 관리 : 자체 관리
+      - 마스터 암호, 암호 확인 : qwer12345
+    - DB 인스턴스 클래스
+      - 이전 세대 클래스 포함 : 활성화
+      - 버스터블 클래스, db.t2.micro
+    - 연결 VPC : CH6-VPC
+    - 기존 VPC 보안 그룹(방화벽) : default 제거 후 dblab-CH6SG2-..
+    - 가용 영역 : ap-northeast-2a
+    - 추가 구성
+      - 초기 데이터베이스 이름 : sample
+      - DB 파라미터 그룹 : dblab-mydbparametergroup-..
+      - 백업 보존 기간 : 0일
+      - 백업 기간 : 기간 선택
+        - 01:00 UTC, 0.5시간
+  - EC2 SSH
+    - RDS1, RDS2 엔드포인트 주소를 변수로 선언
+      - `RDS1=..`
+    - 데이터베이스 접속
+      - `mysql -h $RDS1 -uroot -pqwer12345`
+    - 상태 정보와 데이터베이스 확인
+      - `status;`
+      - `show databases;`
+    - index.php 파일 RDS2와 연동 (/var/www/html/index.php)
+      - `define('DB_SERVER', '(RDS2 엔드포인트 주소)');`
+    - EC2 퍼블릭 IP 로 브라우저 접근 후 데이터 추가
+    - RDS2 에 접근하여 데이터 확인
+      - `mysql -h $RDS2 -uroot -pqwer12345`
+      - `use sample;`
+      - `select * from EMPLOYEES;`
+      - `while true; do mysql -h $RDS2 --connect-timeout=2 -uroot -pqwer12345 -e "use sample; select * from EMPLOYEES;"; host $RDS2; date; sleep 1; done`
+  - RDS2 가 중지될 경우 동작 확인하기
+    - 현재 단일 데이터베이스
+    - EC2 SSH 에서 테이블 확인 스크립트 실행
+      - `. /db_sh/SELECT_TABLE_RDS2.sh`
+    - RDS2 -> 작업 -> 일시적으로 중지
+      - 7일 후 자동으로 재시작 동의에 체크
+      - 스크립트 확인 후 RDS2 다시 시작
+- 6.3.3. Amazon RDS 고가용성을 위한 Multi-AZ 동작 확인하기
+  - 데이터베이스 연결을 RDS1 으로 변경 (/var/www/html/index.php)
+    - `define('DB_SERVER', '(RDS1 엔드포인트 주소)');`
+  - RDS1 에 테이블 생성
+    - `mysql -h $RDS1 -uroot -pqwer12345 -e "use sample; create table EMPLOYEES(ID int, NAME CHAR(20), ADDRESS CHAR(20));"`
+  - 테이블에 데이터 추가
+    - `mysql -h $RDS1 -uroot -pqwer12345 -e "use sample; insert into EMPLOYEES values(1, "son", "UK");"`
+  - 스크립트로 확인
+    - `. /db_sh/SELECT_TABLE_RDS1.sh`
+  - RDS1 -> 작업 -> 재부팅
+    - 장애 조치로 재부팅하시겠습니까? : 체크
+  - 페일오버 동작 확인
+- 6.3.4. Amazon RDS 의 성능을 확장하는 Read Replica 동작 확인하기
+  - RDS2 -> 작업 -> 읽기 전용 복제본 생성 : 불가
+    - 백업 보존 기간 설정이 0일이므로 자동 백업 비활성화 상태
+  - RDS1 -> 작업 -> 읽기 전용 복제본 생성
+    - DB 인스턴스 식별자 : rds1-rr
+  - EC2 SSH
+    - 복제본 엔드포인트 주소 변수 선언
+      - `RDS1RR=(엔드포인트 주소)`
+    - RDS1 과 RDS1RR 의 데이터 일치 확인
+      - `mysql -h $RDS1 -uroot -pqwer12345 -e "use sample; select * from EMPLOYEES;"`
+      - `mysql -h $RDS1RR -uroot -pqwer12345 -e "use sample; select * from EMPLOYEES;"`
+    - RDS1 에 데이터 추가
+      - `mysql -h $RDS1 -uroot -pqwer12345 -e "use sample; insert into EMPLOYEES values('2', 'Park', 'Suwon');"`
+      - RDS1RR 에 추가하려 하면 read-only 에러 노출
+      - 동기화 확인 (읽기 처리 분산해서 성능 향상 가능)
+- 6.3.5. 실습을 통해 생성된 모든 자원 삭제하기
+  - RDS -> 데이터베이스 -> 삭제
+  - CloudFormation -> 스택 -> 삭제
+
+## 7장. AWS 고급 네트워킹 서비스 (287p~)
+
+### 7.1. DNS 란 (288p~)
