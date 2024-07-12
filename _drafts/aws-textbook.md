@@ -1464,3 +1464,77 @@
 
 ### 7.5. (실습) Amazon CloudFront 로 CDN 서비스 구성하기 (314p~)
 
+- 7.5.1. CloudFormation 으로 기본 인프라 배포하기
+  - 서버의 지연 시간을 높이기 위해 상파울루 리전에서 진행
+  - 상파울루 리전(sa-east-1) -> CloudFormation -> 스택 생성
+    - url : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter7/cflab.yaml
+    - 스택 이름 : CF-LAB
+  - 현재 인프라 구성
+    - SA-VPC (10.0.0.0/16)
+      - SA-Public-SN-1 (퍼블릭 서브넷)
+        - SA-EC2 (오리진 서버)
+      - WEBSG (보안 그룹. TCP 22/80 허용)
+      - SA-Public-RT (0.0.0.0/0 -> IGW)
+    - SA-IGW
+- 7.5.2. Amazon Route 53 설정과 기본 인프라 검증하기
+  - Amazon Route 53 -> 호스팅 영역 -> 레코드 생성
+    - 레코드 이름 : 빈칸
+    - 레코드 유형 : A
+    - 값 : EC2 Public IP
+    - 라우팅 정책 : 단순 라우팅
+  - 지연 시간 체크
+    - 크롬 개발자 도구 -> Network -> 레코드 도메인 접근
+      - 지연 시간 3.82~4.9s (10MB 이미지)
+      - 새로고침 버튼 우클릭 -> 캐시 비우기 및 강력 새로고침
+- 7.5.3. Amazon CloudFront Distribution 생성하기
+  - 도메인 인증서 필수 선행
+  - AWS Certificate Manager 에서 도메인 인증서 등록하기
+    - 미국 동부(버지니아 북부) 리전(us-east-1) -> AWS Certificate Manager -> 인증서 요청
+      - 인증서 유형 : 퍼블릭 인증서
+      - 완전히 정규화된 도메인 이름 : *.gigyesik.click
+      - 검증 방법 : DNS 검증
+    - 인증서 상세 -> Route 53 에서 레코드 생성
+  - Amazon CloudFront Distribution 생성하기
+    - CloudFront -> 배포 생성
+      - 원본
+        - Origin Domain : EC2 Public DNS
+        - 프로토콜 : HTTP 만 해당
+      - 기본 캐시 동작
+        - 자동으로 객체 압축 : No
+        - 뷰어 프로콜 정책 : HTTP and HTTPS
+        - 캐시 키 및 원본 요청 : Legacy cache settings
+      - 웹 어플리케이션 방화벽(WAF) : 보안 보호 비활성화
+      - 설정
+        - 가격 분류 : 모든 엣지 로케이션에서 사용
+        - 대체 도메인 이름(CNAME) 추가 : cdn.gigyesik.click
+        - Custom SSL Certificate : *.gigyesik.click
+        - 기본값 루트 객체 : /index.php
+        - IPv6 : 끄기
+- 7.5.4. Amazon Route 53 설정과 CloudFront 환경 검증하기
+  - Amazon Route 53 -> 호스팅 영역 -> 레코드 생성
+    - 레코드 이름 : cdn
+    - 레코드 유형 : A
+    - 별칭 : 활성화 (AWS 내 자원과 연결된 레코드로 만들기)
+      - 트래픽 라우팅 대상 : CloudFront 배포에 대한 별칭
+      - 배포 : Distribution 의 도메인 이름 
+    - 라우팅 정책 : 단순 라우팅
+  - 최초 접속 (크롬 개발자 도구 -> Network)
+    - 도메인 : cdn.gigyesik.click
+    - 최초 지연 시간 : 3.47 초
+    - test.jpg 요소 헤더 확인 
+      - X-Amz-Cf-Pop : ICN57-P1 (엣지 로케이션 위치)
+      - X-Cache : Miss from cloudfront (캐시 미스 상태. 오리진이 응답)
+  - 재접속 (새로고침 우클릭 -> 캐시 비우기 및 강력 새로고침)
+    - 재접속 지연 시간 : 0.14초
+    - test.jpg 요소 헤더 확인
+      - X-Amz-Cf-Pop : ICN57-P1 (엣지 로케이션 위치)
+      - X-Cache : Hit from cloudfront (캐시 히트 상태. 엣지 로케이션이 응답)
+- 7.5.5. 실습을 통해 생성된 모든 자원 삭제하기
+  - CloudFront -> 배포 -> Distribution 비활성화 -> Distribution 삭제
+  - Certificate Manager -> 버지니아 북부 리전 -> 인증서 나열 -> 삭제
+  - Amazon Route 53 -> 호스팅 영역 -> 레코드 삭제
+  - CloudFormation -> 상파울루 리전 -> 스택 삭제
+
+## 8장. AWS IAM 서비스 (337p~)
+
+### 8.1. 배경 소개 (338p~)
