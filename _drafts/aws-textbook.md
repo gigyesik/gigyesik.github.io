@@ -1585,3 +1585,120 @@
   - IAM 역할 : 정의된 권한 범위 내에서 AWS API 를 사용할 수 있는 임시 자격 증명
 
 ### 8.3. (실습) AWS IAM 사용자 생성 및 정책, 역할 동작 확인하기 (348p~)
+
+- 8.3.1. 실습을 위한 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter8/iamlab.yaml
+    - 스택 이름 : iamlab
+    - KeyName : test-gigyesik
+    - `AWS CloudFormation에서 사용자 지정 이름으로 IAM 리소스를 생성할 수 있음을 승인합니다.` 체크
+  - 현재 인프라 구성
+    - MyVPC (10.0.0.0/16)
+    - My-Public-SN
+      - BasicEC2
+      - S3IAMRoleEC2
+    - IAM Role : STGLabInstanceRole
+    - InstanceProfile : STGLabRoleForInstance
+    - SGWebSrv (TCP 22/80, ICMP 허용)
+    - My-Public-RT
+    - My-IGW
+- 8.3.2. IAM 사용자 생성 및 동작 확인하기
+  - IAM 사용자 생성하기
+    - admin
+      - IAM -> 사용자 -> 사용자 생성
+        - 사용자 이름 : admin
+        - 권한 옵션 : 직접 정책 연결
+        - 권한 정책 : AdministratorAccess
+      - 보안 자격 증명 -> 엑세스 키 만들기
+        - 사용 사례 : Command Line Interface(CLI)
+        - `위의 권장 사항을 이해했으며 액세스 키 생성을 계속하려고 합니다.` : 체크
+        - 설명 태그 값 : admin access key
+      - 보안 자격 증명 -> 콘솔 엑세스 활성화
+        - 콘솔 암호 : 사용자 지정 암호 
+    - viewuser
+      - IAM -> 사용자 -> 사용자 생성
+        - 사용자 이름 : viewuser
+        - 권한 옵션 : 직접 정책 연결
+        - 권한 정책 : ViewOnlyAccess
+      - 보안 자격 증명 -> 콘솔 엑세스 활성화
+        - 콘솔 암호 : 사용자 지정 암호
+  - IAM 사용자로 AWS 관리 콘솔 로그인하기
+    - root 계정 ID 메모
+    - 콘솔에 로그인 -> IAM 사용자로 로그인
+      - 계정 ID : root 계정 ID
+      - 사용자 이름 : admin
+      - 비밀번호 : 사용자 지정 암호
+      - EC2 -> 인스턴스
+        - BasicEC2 -> 인스턴스 재부팅 -> 성공
+    - 콘솔에 로그인 -> viewuser
+      - EC2 -> 인스턴스
+        - BasicEC2 -> 인스턴스 종료 -> 오류
+  - 8.3.3. IAM 정책 설정 및 동작 확인하기
+    - BasicEC2 ssh 콘솔
+      - 사용자 자격 증명 설정
+        - `aws configure`
+        - `AWS Access Key ID [None] : (admin access key)`
+        - `AWS Secret Access Key [None] : (비밀 키)`
+        - `Default region name [None] : ap-northeast-2`
+        - `Default output format [None] : (공란)`
+      - 자격 증명 List 확인
+        - `aws configure list`
+      - S3 정보 조회 (자격 증명 동작 확인. s3 없으므로 출력은 없음)
+        - `aws s3 list`
+      - 인스턴스 상세 정보 조회 (q 나 space 눌러서 출력 종료)
+        - `aws ec2 describe-instances`
+      - 인스턴스 ID 와 태그 Name 조회하여 S3IAMRoleEC2 인스턴스 ID 조회
+        - `aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,Name:Tags[?Key==`Name`]|[0].Value}' --output text`
+      - 인스턴스 ID 와 프라이빗 IP 조회하여 S3IAMRoleEC2 프라이빗 IP 조회
+        - `aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:PrivateIpAddress,Name:Tags[?Key==`Name`]|[0].Value}' --output text`
+      - S3IAMRoleEC2 재부팅 시도하기
+        - EC2 private ip 에 ping 시도
+          - `ping (프라이빗 ip)`
+        - S3IAMRoleEC2 인스턴스 재부팅
+          - `aws ec2 reboot-instances --instance-ids (인스턴스 ID)`
+        - 재부팅 중 ping 시도 -> 패킷 유실됨
+    - 재부팅/중지 거부 정책 설정하기
+      - IAM -> 사용자 -> admin -> 권한 탭 -> 인라인 정책 생성
+        - JSON 코드 입력
+        ```json
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Action": [
+                "ec2:RebootInstances",
+                "ec2:StopInstances"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+        ```
+        - 이름 : ec2denypolicy
+      - 재부팅 요청 거부됨 확인
+- 8.3.4. IAM 역할 설정 및 동작 확인하기
+  - IAM -> 역할 -> STGLabInstanceRole
+    - `AmazonS3FullAccess` 정책 확인
+  - EC2 -> 인스턴스 -> S3IAMRoleEc2 -> 보안 탭
+    - IAM 역할 `STGLabInstanceRole` 확인
+  - S3IAMRoleEC2 SSH
+    - 자격 증명 확인 (IAM 역할 정보 확인)
+      - `aws configure list`
+    - S3 버킷 조회 (출력 없음)
+      - `aws s3 ls`
+    - S3 버킷 생성
+      - `aws s3 mb s3://(unique 버킷 이름) --region ap-northeast-2`
+    - S3 버킷 삭제
+      - `aws s3 rb s3://(버킷 이름)`
+    - VPC 정보 확인 (실패)
+      - `aws ec2 describe-vpcs`
+    - 인스턴스 재부팅 시도 (실패)
+      - `aws ec2 reboot-instances --instance-ids (인스턴스 ID)'
+- 8.3.5. 실습을 위해 생성된 모든 자원 삭제하기
+  - IAM -> 사용자 -> 삭제
+  - CloudFormation -> 스택 -> 삭제
+
+## 9장. AWS 오토 스케일링 서비스 (371p~)
+
+### 9.1. 스케일링 (372p~)
