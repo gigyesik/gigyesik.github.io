@@ -1768,3 +1768,128 @@
 
 ### 9.3. (실습) Amazon EC2 오토 스케일링 구성하기 (381p~)
 
+- 9.3.1. CloudFormation 으로 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter9/aslab.yaml
+    - 스택 이름 : aslab
+    - KeyName : test-gigyesik
+    - `AWS CloudFormation에서 사용자 지정 이름으로 IAM 리소스를 생성할 수 있음을 승인합니다.` : 체크
+  - 현재 네트워크 구성
+    - MyVPC (10.0.0.0/16)
+      - My-Public-SN (10.0.0.0/24)
+        - MyEC2
+        - My-SG (TCP 22/88, ICMP 허용)
+    - CH9-VPC (10.9.0.0/16)
+      - CH9-Public-SN1 (10.9.1.0/24)
+      - CH9-Public-SN2 (10.9.2.0/24)
+      - CH9-ALB (SN1, SN2 대상)
+      - CH9-SG (TCP 22/88, ICMP 허용)
+- 9.3.2. 기본 인프라 환경 검증하기
+  - MyEC2 SSH
+    - AWS CLI 툴 버전 확인
+      - `aws --version`
+    - AWS CLI 로 생성된 인스턴스 정보 확인 (1회)
+      - `aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, State.Name, PrivateIpAddress]' --output text`
+    - AWS CLI 로 생성된 인스턴스 정보 확인 (연속)
+      - `while true; do aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId, State.Name, PrivateIpAddress]' --output text; date; sleep 1; done`
+    - ApacheBench 툴 버전 확인
+      - `ab -V`
+      - ApacheBench : 웹 서비스 벤치마킹 툴
+    - ALB DNS 이름 변수 지정
+      - `ALB=(ALB DNS 이름)`
+    - ALB DNS IP 정보 확인
+      - `dig +short $ALB`
+    - ALB DNS 통신 테스트 (현재 전달 타킷 없어 HTTP 503 에러)
+      - `while true; do curl $ALB --silent --connect-timeout 1; date; echo`
+      - `curl $ALB`
+- 9.3.3. EC2 인스턴스 시작 템플릿 생성하기
+  - EC2 -> 인스턴스 -> 시작 템플릿 -> 시작 템플릿 생성
+    - 시작 템플릿 이름 및 설명
+      - 시작 템플릿 이름 : EC2Template
+      - 템플릿 버전 설명 : EC2 Auto Scaling
+      - `EC2 Auto Scaling에 사용할 수 있는 템플릿을 설정하는 데 도움이 되는 지침 제공` : 체크
+    - 시작 템플릿 콘텐츠
+      - 애플리케이션 및 OS 이미지 : Quick Start
+        - Amazon Linux
+        - AMI : Amazon Linux 2 AMI (HVM)
+      - 인스턴스 유형 : t2.micro
+      - 키 페어 : test-gigyesik
+      - 보안 그룹 : 기존 보안 그룹 선택 -> aslab-VPC1SG-..
+      - 리소스 태그 : 키 Lab, 값 ASLab
+      - 고급 세부 정보 
+        - CloudWatch 모니터링 : 활성화
+        - 메타데이터 엑세스 기능 : 활성
+        - 메타데이터 버전 : V1 및 V2(토큰 선택 사항)
+        - 사용자 데이터
+        ```Shell
+        !/bin/bash
+        RZAZ='curl http://169.254.169.254/latest/meta-data/placement/availability-zone-id'
+        IID='curl 169.254.169.254/latest/meta-data/instance-id'
+        LIP='curl 169.254.169.254/latest/meta-data/local-ipv4'
+        amazon-linux-extras install -y php8.0
+        yum install httpd htop tmux -y
+        systemctl start httpd && systemctl enable httpd
+        echo "<h1>RegionAz($RZAZ) : Instance ID($IID) : Pricate IP($LIP) : Web Server</h1>" > /var/www/html/index.html
+        echo "1" > /var/www/html/HealthCheck.txt
+        curl -o /var/www/html/load.php https://cloudneta-book.s3.ap-northeast-2.amazonaws.com/chapter5/load.php --silent
+        ```
+  - 시작 템플릿 보기 (정보 확인)
+- 9.3.4. Amazon EC2 오토 스케일림 그룹 생성하기
+  - 오토 스케일링 그룹 생성 및 인스턴스 확대 정책 수립하기
+    - EC2 -> Auto Scaling -> Auto Scaling 그룹 -> Auto Scaling 그룹 생성
+      - 이름 : FirstEC2ASG
+      - 시작 템플릿 : EC2Template
+      - VPC : CH9-VPC
+      - 가용 영역 및 서브넷 : CH9-Public-SN1, CH9-Public-SN2
+      - 로드 밸런싱 : 기존 로드 밸런서에 연결
+        - 로드 밸런서 대상 그룹 : ALB-TG
+      - 상태 확인
+        - `Elastic Load Balancer 상태 확인 켜기` 체크
+        - 상태 확인 유예 기간 : 60초
+      - 추가 설정
+        - `CloudWatch 내에서 그룹 지표 수집 활성화` 체크
+      - 그룹 크기
+        - 원하는 용량 1 / 최소 용량 1 / 최대 용량 4
+      - Automatic Scaling : 대상 추적 크기 조정 정책
+        - 크기 조정 정책 이름 : Scale Out Policy
+        - 대상 값 : 80
+        - 인스턴스 워밍업 : 60
+        - `확대 정책만 생성하려면 축소 비활성화` 체크
+      - 태그 추가
+        - 키 : Name , 값 : WebServers
+  - 인스턴스 종료 정책 수립
+    - FirstEC2ASG -> 고급 구성 -> 편집
+      - 기본값 종료 정책 삭제
+      - 정책 추가 -> 최신 인스턴스
+      - 기본 휴지 기간 : 180초
+  - 인스턴스 축소 정책 수립하기
+    - FirstEC2ASG -> Automatic Scaling 탭 -> 동적 크기 조정 정책 생성
+      - 정책 유형 : 단순 크기 조정
+      - 크기 조정 정책 이름 : Scale In Policy
+      - 작업 수행 : 제거 / 값 : 1
+      - 그런 다음 대기 : 60초
+        - CloudWatch 경보 생성 -> 생성 후 ASG-CPU
+          - 지표 및 조건 지정
+            - 지표 : EC2 -> Auto Scaling Group -> CPUUtilization
+            - 기간 : 1분
+            - 임계값 유형 : 정적
+            - 경보 조건 : 보다 작음
+            - 임계값 : 10
+            - 추가 구성 -> 경보를 알릴 데이터 포인트 : 2 / 2
+          - 작업 구성
+            - 경보 상태 트리거 : 제거
+          - 이름 및 설명
+            - 이름 : ASG-CPU
+  - CloudWatch -> 경보 -> 모든 경보 -> 대시보드에 추가
+    - 새 대시보드 생성 -> 이름 : MyASG
+  - CloudWatch -> 지표 -> 모든 지표 -> Auto Scaling -> 그룹 지표
+    - GroupInServiceInstances 체크 -> 그래프로 표시된 지표 탭
+      - 기간 : 1분
+    - 옵션 탭
+      - 왼쪽 Y 축 : 최소 값 0 / 최대 값 4
+    - 작업 > 대시보드에 추가
+      - 대시보드 선택 : MyASG
+- 9.3.5. MyEC2 에 접속하여 인스턴스에 CPU 부하 발생시키기
+  - MyEC2 SSH
+    - ALB DNS 이름 변수 지정
+      - `ALB=(ALB DNS 이름)`
