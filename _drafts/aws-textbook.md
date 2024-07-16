@@ -1710,8 +1710,8 @@
     - 스케일 업(scale-up) : IT 자원 용량 확장
     - 스케일 다운(scale-down) : IT 자원 용량 축소
   - 수평 스케일링(horizontal scaling) : IT 자원의 수량을 확장하거나 축소하는 기능
-    - 스케일 인(scale-in) : IT 자원 수량 증가
-    - 스케일 아웃(scale-out) : IT 자원 수량 감소 
+    - 스케일 아웃(scale-out) : IT 자원 수량 증가
+    - 스케일 인(scale-in) : IT 자원 수량 감소 
 
 ### 9.2. AWS 오토 스케일링 서비스 (374p~)
 
@@ -1800,7 +1800,7 @@
     - ALB DNS IP 정보 확인
       - `dig +short $ALB`
     - ALB DNS 통신 테스트 (현재 전달 타킷 없어 HTTP 503 에러)
-      - `while true; do curl $ALB --silent --connect-timeout 1; date; echo`
+      - `while true; do curl $ALB --silent --connect-timeout 1; date; echo "---[AutoScaling]---"; sleep 1; done`
       - `curl $ALB`
 - 9.3.3. EC2 인스턴스 시작 템플릿 생성하기
   - EC2 -> 인스턴스 -> 시작 템플릿 -> 시작 템플릿 생성
@@ -1822,14 +1822,14 @@
         - 메타데이터 버전 : V1 및 V2(토큰 선택 사항)
         - 사용자 데이터
         ```Shell
-        !/bin/bash
-        RZAZ='curl http://169.254.169.254/latest/meta-data/placement/availability-zone-id'
-        IID='curl 169.254.169.254/latest/meta-data/instance-id'
-        LIP='curl 169.254.169.254/latest/meta-data/local-ipv4'
+        #!/bin/bash
+        RZAZ=`curl http://169.254.169.254/latest/meta-data/placement/availability-zone-id`
+        IID=`curl 169.254.169.254/latest/meta-data/instance-id`
+        LIP=`curl 169.254.169.254/latest/meta-data/local-ipv4`
         amazon-linux-extras install -y php8.0
         yum install httpd htop tmux -y
         systemctl start httpd && systemctl enable httpd
-        echo "<h1>RegionAz($RZAZ) : Instance ID($IID) : Pricate IP($LIP) : Web Server</h1>" > /var/www/html/index.html
+        echo "<h1>RegionAz($RZAZ) : Instance ID($IID) : Private IP($LIP) : Web Server</h1>" > /var/www/html/index.html
         echo "1" > /var/www/html/HealthCheck.txt
         curl -o /var/www/html/load.php https://cloudneta-book.s3.ap-northeast-2.amazonaws.com/chapter5/load.php --silent
         ```
@@ -1890,6 +1890,35 @@
     - 작업 > 대시보드에 추가
       - 대시보드 선택 : MyASG
 - 9.3.5. MyEC2 에 접속하여 인스턴스에 CPU 부하 발생시키기
-  - MyEC2 SSH
+  - MyEC2 SSH 1
     - ALB DNS 이름 변수 지정
       - `ALB=(ALB DNS 이름)`
+    - ALB DNS 통신 (1회)
+      - `curl $ALB`
+    - ALB DNS 통신 (반복)
+      - `while true; do curl $ALB --silent --connect-timeout 1; date; echo "---[AutoScaling]---"; sleep 1; done`
+  - WebServers SSH
+    - 서버 자원 (CPU, 메모리) 사용률 출력
+      - `htop`
+  - MyEC2 SSH 2
+    - ALB DNS 이름 변수 지정
+      - `ALB=(ALB DNS 이름)`
+    - load.php 페이지로 접근하여 강제 CPU 부하 발생 (1회)
+      - `curl $ALB/load.php; echo`
+    - ApacheBench 명령어로 load.php 500번 호출
+      - `ab -n 500 -c 1 http://$ALB/load.php`
+  - EC2 -> 로드 밸런싱 -> 대상 그룹, EC2 대시보드에서 생성되는 인스턴스 확인
+  - CloudWatch 대시보드에서 스케일 아웃 확인
+  - CPU 사용률 저하 후 스케일 인 확인
+- 9.3.6. 실습을 위해 생성된 모든 자원 삭제하기
+  - CloudWatch
+    - 모든 지표 -> 삭제
+    - 대시보드 -> MyASG 삭제
+  - EC2
+    - Auto Scaling 그룹 -> FirstEC2ASG 삭제
+    - 시작 템플릿 -> 삭제 
+  - CloudFormation -> 스택 삭제
+
+## 10장. 워드프레스 (417p~)
+
+### 10.1. 워드프레스 소개 (418p~)
