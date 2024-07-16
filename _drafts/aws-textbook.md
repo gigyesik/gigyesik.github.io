@@ -2074,3 +2074,61 @@
 ## 11장. 워드프레스 이중화 (437p~)
 
 ### 11.1. 실습 소개 (438p~)
+
+- 구성 1
+  - CloudFront -> ALB -> EC2 (워드프레스)
+  - S3 (이미지 파일)
+- 구성 2
+  - CloudFront -> ALB
+    - AZ1, AZ2
+      - EC2 (오토 스케일링) -> RDS
+      - EFS
+
+### 11.2. (실습1) AWS 서비스를 활용한 워드프레스 구성하기 (439p~)
+
+- 11.2.1. CloudFormation 으로 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter11/wplabs-ha1.yaml
+    - 스택 이름 : wpha1lab
+    - KeyName : test-gigyesik
+    - `AWS CloudFormation에서 사용자 지정 이름으로 IAM 리소스를 생성할 수 있음을 승인합니다.` : 체크
+  - 현재 인프라 구성
+    - CloudFront
+    - WP-VPC1 (10.1.1.0/16)
+      - ALB
+        - Public Subnet 1 (10.1.1.0/24)
+          - AllInOne (10.1.1.100)
+        - Public Subnet 2 (10.1.2.0/24)
+- 11.2.2. 기본 인프라 환경 검증하기
+  - CloudFront -> 배포 정보 확인
+  - CloudFormation -> 출력 탭 -> CloudFrontDNS 값으로 웹 페이지 접속 확인 (10장 참조)
+- 11.2.3. 워드프레스 초기 설정 및 블로그에 작성된 글 확인하기
+  - 브라우저 -> CloudFrontDNS (http)
+    - 이미지를 포함한 글 작성
+    - 이미지 우클릭 -> 새 탭에서 이미지 열기 -> 이미지 URL 정보 확인
+      - `CloudFront 도메인 주소 + 날짜 정보 + 이미지 이름`
+  - AllInOne SSH
+    - 워드프레스 업로드 디렉토리 확인 (업로드한 이미지가 있음)
+      - `tree /var/www/wordpress/wp-content/uploads/`
+- 11.2.4. S3 에서 정적 콘텐츠 처리 설정하기
+  - 워드프레스 플러그인 WP Offload Media Lite 설치하기
+    - 워드프레스 관리자 -> 플러그인 -> 새로 추가 -> WP Offload Media Lite 설치 -> 활성화
+    - WP Offload Media Lite -> 설정
+      - 제공자 : S3
+      - 연결 방법 : `내 서버가 Amazon Web Services에 있고 IAM 역할을 사용하고 싶습니다.`
+      - 새 버킷 만들기
+        - 버킷 이름 : 임의
+        - 지역 : Asia Pacific (Seoul)
+    - 로컬 미디어 제거 : 활성화
+  - 이미지를 포함한 새글 작성 -> 이미지 URL 정보 확인
+    - `S3 버킷 주소 + 날짜 정보 + 이미지 이름`
+  - AllInOne SSH
+    - 워드프레스 업로드 디렉토리 확인 (업로드한 이미지가 없음)
+      - `tree /var/www/wordpress/wp-content/uploads/`
+    - s3 버킷 정보 확인
+      - `aws s3 ls`
+- 11.2.5. 실습을 통해 생성된 모든 자원 삭제하기
+  - CloudFormation -> 스택 삭제
+  - S3 -> 버킷 삭제
+
+### 11.3. (실습2) 확장성과 안정성을 고려한 워드프레스 구성하기 (451p~)
