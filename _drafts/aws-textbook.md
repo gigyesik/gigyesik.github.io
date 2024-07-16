@@ -1922,3 +1922,121 @@
 ## 10장. 워드프레스 (417p~)
 
 ### 10.1. 워드프레스 소개 (418p~)
+
+- 워드프레스(wordpress) : 웹 사이트 제작 오픈 소스 플랫폼
+- 10.1.1. 웹 시스템 구성 요소
+  - 웹 서버
+  - 웹 애플리케이션 서버
+  - 데이터베이스 서버
+- 10.1.2. 워드프레스 구성 요소
+  - 웹 서버 : apache, nginx
+  - 웹 애플리케이션 서버 : php
+  - 데이터베이스 서버 : MySQL, MariaDB
+  - 단일 구성 : 한 대의 EC2 에 웹 서버 + 웹 애플리케이션 서버 + 데이터베이스 서버
+    - 관리가 편하나, 수정시 전체가 영향을 받고 보안에 취약
+  - 복합 구성 : EC2 에 웹 서버 + 웹 애플리케이션 서버, 파일 시스템 EFS, 데이터베이스 RDS
+
+### 10.2. (실습) 워드프레스 구성하기
+
+- 10.2.1. CloudFormation 으로 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter10/wplabs.yaml
+    - 스택 이름 : wplab
+    - KeyName : test-gigyesik
+    - `AWS CloudFormation에서 사용자 지정 이름으로 IAM 리소스를 생성할 수 있음을 승인합니다.` : 체크
+  - 현재 인프라 구성
+    - WP-VPC1 (10.1.1.0/16)
+      - Public Subnet 1 (10.1.1.0/24)
+        - AllInOne (10.1.1.100)
+      - Public Subnet 2 (10.1.2.0/24)
+        - WebSev (10.1.2.200)
+      - Private Subnet 3 (10.1.3.0/24)
+      - Private Subnet 4 (10.1.4.0/24)
+        - Amazon RDS (MySQL)
+      - EFS
+- 10.2.2. 기본 인프라 환경 검증하기
+  - 생성된 EFS(WebSrv-EFS), RDS(wpdb) 확인
+- 10.2.3. 워드프레스의 단일 구성 환경 구성하기
+  - 웹 서버 + 웹 애플리케이션 서버 + 데이터베이스 서버 구성하기
+    - AllInOne SSH
+      - apache 웹 서버 설치
+        - `yum install httpd -y`
+      - 서비스 실행
+        - `systemctl start httpd && systemctl enable httpd`
+      - 버전 확인
+        - `httpd -v`
+      - 웹 서버 접속
+        - `curl http://10.1.1.100`
+      - 브라우저에서 AllInOne 퍼블릭 IP 로 접근하여 페이지 확인
+      - php 설치
+        - `amazon-linux-extras install php8.2 -y`
+      - 버전 확인
+        - `php -v`
+      - PHP Extensions 설치 후 적용
+        - `yum install -y php-xml php-mbstring ImageMagick ImageMagick-devel php-pear php-devel`
+        - `printf "\n" | pecl install imagick`
+        - `echo "extension = imagick.so" > /etc/php.d/40-imagick.ini`
+        - `systemctl restart php-fpm && systemctl restart httpd`
+      - PHP Extensions 정보 확인
+        - `php --ini`
+      - php 정보를 출력하는 웹 페이지 생성 및 확인
+        - `echo "<?php phpinfo(); ?>" > /var/www/html/info.php`
+        - `ls /var/www/html`
+      - info.php 웹 접속 확인
+        - `curl http://10.1.1.100/info.php`
+      - 브라우저에서 http://(퍼블릭 IP)/info.php 로 접근하여 페이지 확인
+      - 데이터베이스 서버 설치
+        - `amazon-linux-extras install mariadb10.5 -y`
+      - mariadb 서비스 시작
+        - `systemctl start mariadb && systemctl enable mariadb`
+      - mariadb 계정 초기화
+        - `echo -e "\n n\n n\n Y\n n\n Y\n Y\n" | /usr/bin/mysql_secure_installation`
+      - mariadb 계정 루트 암호 설정 : qwe123
+        - `mysql -e "set password = password('qwe123');"`
+      - mariadb root 계정 원격 접속 설정
+        - `mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'qwe123';"`
+      - 워드프레스가 사용할 데이터베이스 생성 및 확인
+        - `mysql -e "CREATE DATABASE wordpressdb"`
+        - `mysql -e "show databases"`
+      - mariadb 서비스 재시작
+        - `systemctl restart mariadb`
+      - mariadb 버전 확인
+        - `mysql --version`
+  - 워드프레스 설치하고 초기 설정하기
+    - AllInOne SSH
+      - 워드프레스 다운로드
+        - `wget https://wordpress.org/wordpress-6.2.zip`
+      - 압축 풀기
+        - `unzip wordpress-6.2.zip`
+      - 워드프레스 설정 파일 복사
+        - `cp wordpress/wp-config-sample.php wordpress/wp-config.php`
+      - 워드프레스 설정 파일에 db 접속정보 입력
+        - `sed -i "s/database_name_here/wordpressdb/g" wordpress/wp-config.php`
+        - `sed -i "s/username_here/root/g" wordpress/wp-config.php`
+        - `sed -i "s/password_here/qwe123/g" wordpress/wp-config.php`
+      - 워드프레스 설정 파일 확인
+        - `grep 'Database settings -' wordpress/wp-config.php -A15`
+      - 워드프레스 파일을 apache 웹 디렉토리에 복사
+        - `cp -r wordpress/* /var/www/html/`
+      - 웹 사용자, 권한 설정
+        - `chown -R apache /var/www`
+        - `chgrp -R apache /var/www`
+        - `chmod 2775 /var/www`
+        - `find /var/www -type d -exec chmod 2775 {} \;`
+        - `find /var/www -type f -exec chmod 0664 {} \;`
+      - 웹 서비스 재시작
+        - `systemctl restart httpd`
+    - AllInOne 퍼블릭 IP 브라우저 접근
+      - 언어 : 한국어 선택
+      - 사이트 제목 : my blog
+      - 사용자명 : myuser
+      - 비밀번호 : qwe123
+      - 약한 비밀번호 사용 확인 : 체크
+      - 이메일 주소 : a@a.com
+    - 관리자 로그인
+  - 워드프레스에 블로그 글 작성하기
+    - 글 -> 새 글 추가
+      - 간단하게 제목과 내용 작성
+      - 이미지 파일 업로드
+      - 공개 -> 발행 글 확인
+- 10.2.4. 워드프레스의 복합 구성 환경 구성하기
