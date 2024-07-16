@@ -2040,3 +2040,37 @@
       - 이미지 파일 업로드
       - 공개 -> 발행 글 확인
 - 10.2.4. 워드프레스의 복합 구성 환경 구성하기
+  - WebSrv 인스턴스의 기본 설정 정보 확인하기
+    - WebSrv SSH
+      - EFS 저장소 마운트 확인 (워드프레스 파일 저장 공간)
+        - `df -hT --type nfs4`
+      - 워드프레스 관련 파일 확인
+        - `ls /var/www/wordpress`
+      - EFS 파일 시스템 확인
+        - `aws efs describe-file-systems --output table --region ap-northeast-2`
+      - RDS 인스턴스 정보 확인
+        - `aws rds describe-db-instances --region ap-northeast-2 --output table`
+      - RDS 인스턴스 접속 주소 확인 (Endpoint)
+        - `aws rds describe-db-instances --region ap-northeast-2 --query 'DBInstances[*].Endpoint.Address' --output text`
+  - WebSrv 인스턴스에서 워드프레스를 사용할 수 있게 설정하기
+    - WebSrv SSH
+      - RDS 인스턴스 접속 주소 변수 지정
+        - `RDS=$(aws rds describe-db-instances --region ap-northeast-2 --query 'DBInstances[*].Endpoint.Address' --output text)`
+        - echo $RDS
+      - 워드프레스 설정 파일의 mariadb 접속 정보 확인
+        - `grep 'Database settings -' /var/www/wordpress/wp-config.php -A15`
+      - 워드프레스 설정 파일 mariadb 접속 주소 변경
+        - `sed -i "s/localhost/$RDS/g" /var/www/wordpress/wp-config.php`
+        - `grep 'Database settings -' /var/www/wordpress/wp-config.php -A15`
+      - 데이터베이스 생성
+        - `mysql -h $RDS -uroot -pqwe12345 -e 'CREATE DATABASE wordpressdb'`
+      - 데이터베이스 확인
+        - `mysql -h $RDS -uroot -pqwe12345 -e 'show databases'`
+    - WebSrv 퍼블릭 IP 브라우저 접근
+      - 워드프레스 설정, 로그인 (단일 구성과 동일)
+- 10.2.5. 실습을 위해 생성된 모든 자원 삭제하기
+  - CloudFormation -> 스택 삭제
+
+## 11장. 워드프레스 이중화 (437p~)
+
+### 11.1. 실습 소개 (438p~)
