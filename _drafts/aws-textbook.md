@@ -2132,3 +2132,174 @@
   - S3 -> 버킷 삭제
 
 ### 11.3. (실습2) 확장성과 안정성을 고려한 워드프레스 구성하기 (451p~)
+
+- 11.3.1. CloudFormation 으로 기본 인프라 배포하기
+  - CloudFormation -> 스택 생성
+    - Amazon S3 URL : https://cloudneta-aws-book.s3.ap-northeast-2.amazonaws.com/chapter11/wplabs-ha2.yaml
+    - 스택 이름 : wpha2lab
+    - KeyName : test-gigyesik
+    - `AWS CloudFormation에서 사용자 지정 이름으로 IAM 리소스를 생성할 수 있음을 승인합니다.` : 체크
+  - 현재 인프라 구성
+    - CloudFront
+    - WP-VPC1 (10.1.1.0/16)
+      - ALB
+        - Public Subnet1 (10.1.1.0/24)
+          - WebSrv-Leader (10.1.1.110)
+        - Public Subnet2 (10.1.2.0/24)
+      - Private Subnet3 (10.1.3.0/24)
+        - Amazon RDS (standby)
+      - Private Subnet4 (10.1.4.0/24)
+        - Amazon RDS (primary)
+      - EFS 
+- 11.3.2. 기본 인프라 환경 검증하기
+  - CloudFormation -> 출력 탭 -> WebSrvLeaderEC2IP 확인
+- 11.3.3. 인스턴스 기본 설정 및 워드프레스 사용 설정 진행하기
+  - WebSrv SSH
+    - EFS 마운트 확인 (워드프레스 관련 파일)
+      - `df -hT --type nfs4`
+    - 워드프레스 관련 파일 확인
+      - `ls /var/www/wordpress`
+    - EFS 파일 시스템 확인
+      - `aws efs describe-file-systems --output table --region ap-northeast-2`
+    - EFS 파일 시스템 ID 만 출력
+      - `aws efs describe-file-systems --query 'FileSystems[].FileSystemId' --output text --region ap-northeast-2`
+    - RDS 인스턴스 정보 확인
+      - `aws rds describe-db-instances --region ap-northeast-2 --output table`
+    - RDS endpoint 확인
+      - `aws rds describe-db-instances --region ap-northeast-2 --query 'DBInstances[*].Endpoint.Address' --output text`
+  - EFS, RDS 생성 확인
+  - WebSrv SSH
+    - RDS 인스턴스 접속 주소 변수 지정
+      - `RDS=$(aws rds describe-db-instances --region ap-northeast-2 --query 'DBInstances[*].Endpoint.Address' --output text)`
+      - `echo $RDS`
+    - 워드프레스 설정 파일 mariadb 접속 주소 변경
+      - `sed -i "s/localhost/$RDS/g" /var/www/wordpress/wp-config.php`
+    - 데이터베이스 생성
+      - `mysql -h $RDS -uroot -pqwe12345 -e 'CREATE DATABASE wordpressdb'`
+    - 데이터베이스 확인
+      - `mysql -h $RDS -uroot -pqwe12345 -e 'show databases'`
+- 11.3.4. 워드프레스 초기 설정 및 블로그 글 작성하기
+  - 브라우저 -> WebSrv 퍼블릭 IP 접속 -> 워드프레스 초기 설정
+  - 이미지가 포함된 글 작성
+- 11.3.5. ALB 대상 그룹에서 WebSrv-Leader EC2 인스턴스 삭제하기
+  - EC2 -> 로드 밸런싱 -> 대상 그룹 -> ALB-TF -> 등록 취소
+- 11.3.6. 오토 스케일링 그룹으로 워드프레스 웹 서버 구성하기
+  - EC2 인스턴스 시작 템플릿 구성하기
+    - EC2 -> 인스턴스 -> 시작 템플릿 -> 시작 템플릿 생성
+      - 시작 템플릿 이름 : WPEC2LaunchTemplate
+      - 템플릿 버전 설명 : Wordpress WebServer Auto Scaling v1.0
+      - `EC2 Auto Scaling에 사용할 수 있는 템플릿을 설정하는 데 도움이 되는 지침 제공` : 체크
+      - AMI : Quick Start
+        - Amazon Linux 2 AMI (HVM), 64비트 (x86)
+      - 인스턴스 유형 : t3.medium
+      - 키 페어 이름 : test-gigyesik
+      - 방화벽(보안 그룹) : 기존 보안 그룹 선택 / wpha2lab-VPC1SG1-..
+      - EBS 볼륨 유형 : gp3
+      - 리소스 태그 : 키 Lab, 값 WPLab
+      - 고급 세부 정보
+        - IAM 인스턴스 프로파일 : WPLabInstanceProfile
+        - 세부 CloudWatch 모니터링 : 활성화
+        - 사용자 데이터
+        ```Shell
+        #!/bin/bash
+        echo "sudo su -" >> /home/ec2-user/.bashrc
+        # Apache 설치
+        yum update -y && yum install jq htop tree gcc amazon-efs-utils mariadb -y
+        yum install httpd -y
+        systemctl start httpd && systemctl enable httpd
+        # PHP 설치
+        amazon-linux-extras install php8.2 -y
+        yum install -y php-xml php-mbstring ImageMagick ImageMagick-devel php-pear php-devel
+        printf "\n" | pecl install imagick
+        echo "extension = imagick.so" > /etc/php.d/40-imagick.ini
+        systemctl restart php-fpm && systemctl restart httpd
+        # EFS 파일시스템 설정
+        mkdir -p /var/www/wordpress/
+        mount -f efs -o tls (EFS 파일시스템 ID):/ /var/www/wordpress
+        # 워드프레스 설치
+        echo 'ServerName 127.0.0.1:80' >> /etc/httpd/conf.d/MyBlog.conf
+        echo 'DocumentRoot /var/www/wordpress' >> /etc/httpd/conf.d/MyBlog.conf
+        echo '<Directory /var/www/wordpress>' >> /etc/httpd/conf.d/MyBlog.conf
+        echo '  Options Indexes FollowSymLinks' >> /etc/httpd/conf.d/MyBlog.conf
+        echo '  AllowOverride All' >> /etc/httpd/conf.d/MyBlog.conf
+        echo '  Require all granted' >> /etc/httpd/conf.d/MyBlog.conf
+        echo '</Directory>' >> /etc/httpd/conf.d/MyBlog.conf
+        systemctl restart php-fpm && systemctl restart httpd
+        ```
+  - 오토 스케일링 그룹 구성하기
+    - EC2 -> Auto Scaling 그룹 -> Auto Scaling 그룹 생성
+      - Auto Scaling 그룹 이름 : WPEC2AutoScalingGroup
+      - 시작 템플릿 : WPEC2LaunchTemplate
+      - 네트워크
+        - VPC : WP-VPC1
+        - 서브넷 : WP-VPC1-Subnet1, WP-VPC1-Subnet2
+      - 로드 밸런싱 : 기존 로드 밸런서에 연결
+        - 대상 그룹 : ALB-TG | HTTP
+      - 상태 확인
+        - `Elastic Load Balancer 상태 확인 켜기` : 체크
+        - 상태 확인 유예 기간 : 300초
+      - 추가 설정
+        - `CloudWatch 내에서 그룹 지표 수집 활성화` : 체크
+        - `기본 인스턴스 워밍업 활성화` : 체크
+          - 90초
+      - 그룹 크기 및 크기 조정 구성
+        - 원하는 용량 : 2
+        - 최소 용량 : 2
+        - 최대 용량 : 4
+        - 크기 조정 정책 : 없음
+      - 태그 추가
+        - 키 Name, 값 WebServers
+  - 워드프레스 동작 확인하기
+    - EC2 -> 인스턴스 생성 (WebServers) 확인
+    - 로드 밸런싱 -> 대상 그룹 -> EC2 인스턴스 포함 확인
+    - CloudFormation -> 출력 탭 -> CloudFrontDNS 값으로 브라우저 접속 -> 이미지 포함 글 작성
+  - AWS 클라우드 셸(CloudShell)에서 웹 서버 부하분산 접속 확인하기
+    - AWS 클라우드 셸
+      - CloudFrontDNS 도메인 주소 변수 지정
+        - `WPDNS=(CloudFrontDNS 주소)`
+      - 웹 서버의 xff.php 로 접속하여 출력 내용 확인
+        - `curl -s $WPDNS/xff.php ; echo`
+      - 웹 서버의 xff.php 로 접속하여 private 이 포함된 줄만 확인 (프라이빗 IP)
+        - `curl -s $WPDNS/xff.php | grep Private`
+      - 100번 반복 접속 후 ALB 부하분산 확인
+        - `for i in {1..100}; do curl -s $WPDNS/xff.php | grep Private ; done | sort | uniq -c | sort -nr`
+- 11.3.7. 장애 발생 및 서비스 연속성 확인하기
+  - Amazon RDS Primary 장애 발생 후 서비스 동작 확인하기
+    - WebSrv-Leader SSH 1
+      - RDS 접속 도메인 주소 변수 지정
+        - `RDS=$(aws rds describe-db-instances --region ap-northeast-2 --query 'DBInstances[*].Endpoint.Address' --output text)`
+      - RDS 인스턴스 접속 도메인 주소 질의
+        - `dig +short $RDS`
+      - RDS 인스턴스 접속 도메인 주소 질의(반복)
+        - `while true; do date && dig +short $RDS && echo "---------" && sleep 1; done`
+    - WebSrv-Leader SSH 2
+      - RDS 접속 도메인 주소 변수 지정
+        - `RDS=$(aws rds describe-db-instances --region ap-northeast-2 --query 'DBInstances[*].Endpoint.Address' --output text)`
+      - mysql 엔진 버전 정보 확인
+        - `mysql -h $RDS -u root -pqwe12345 -e "SELECT @@version;"`
+      - mysql 엔진 버전 정보 확인(반복)
+        - `while true; do date && mysql -h $RDS -u root -pqwe12345 --connect-timeout=1 -e "SELECT @@version;" ; sleep 1; done`
+    - RDS wpdb -> 작업 -> 재부팅
+      - WebSrv-Leader SSH 1 에서 도메인 주소 IP 변경 확인
+      - WebSrv-Leader SSH 2 에서 mysql 버전 쿼리 잠시 실패 후 다시 응답 확인
+    - 워드프레스 접속 확인
+  - AZ1 가용 영역 수준 장애를 가정해서 설정 후 서비스 동작 확인하기
+    - AWS 클라우드 셸
+      - CloudFrontDNS 도메인 주소 변수 지정
+        - `WPDNS=(CloudFrontDNS 주소)`
+      - CloudFrontDNS 도메인 주소 xff.php 로 접속 확인(반복)
+        - `while true; do date ; curl -s --connect-timeout 1 $WPDNS/xff.php | grep Private ; echo "---[Webserver]---"; sleep 1; done`
+    - Auto Scaling 그룹 -> 세부 정보 탭 -> 편집
+      - 원하는 용량 : 1
+      - 최소 용량 : 1
+      - 최대 용량 : 4
+    - 동작중인 EC2 확인, 동작중인 RDS 확인
+    - AWS 클라우드 셸
+      - CloudFrontDNS 도메인 주소 xff.php 로 접속 확인(반복)
+        - `while true; do date ; curl -s --connect-timeout 1 $WPDNS/xff.php | grep Private ; echo "---[Webserver]---"; sleep 1; done`
+    - 워드프레스에 글 작성 확인
+- 11.3.8 실습을 위해 생성된 모든 자원 삭제하기
+  - Auto Scaling 그룹 삭제
+  - CloudFormation 스택 삭제
+  - EC2 인스턴스 시작 템플릿 삭제
+  - Amazon Route 53 호스팅 영역 삭제
