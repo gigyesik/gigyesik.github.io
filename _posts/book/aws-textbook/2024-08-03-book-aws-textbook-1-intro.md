@@ -1,6 +1,6 @@
 ---
 layout: post
-title: (혼자 공부하는 네트워크) 01. 컴퓨터 네트워크 시작하기
+title: (AWS 교과서) 1장. AWS 란
 date: 2024-08-03 01:53 +0900
 categories: [book, AWS 교과서]
 tag: [book, AWS 교과서, AWS]
