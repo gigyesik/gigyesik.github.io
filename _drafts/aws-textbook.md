@@ -9,141 +9,81 @@
 - cf. AWS CLI(Command Line Interface) : 셸 프로그램 명령어 기반
 - cf. AWS IaC(Infrastructure as Code) : 코드 기반
 
+## 2.3. (실습) Amazon EC2 인스턴스 배포 및 접근하기 (50p~)
 
-## 2장. AWS 컴퓨팅 서비스 (37p~)
+### 준비 : SSH(Secure SHell)
+### EC2 키 페어 내려받기 : EC2 -> 네트워크 및 보안 -> 키 페어 -> 키 페어 생성
+### 2.3.1. AMI 를 이용한 EC2 인스턴스 배포하기
 
-### 2.1. AWS 컴퓨팅 서비스 (38p~)
+- EC2 대시보드 -> 인스턴스 시작
+- AMI : Amazon Linux 2 AMI (HVM)
+- 인스턴스 유형 : t2.micro
+- 키 페어 : 위에서 생성한 키 페어
+- 네트워크 설정 : 기본 보안 그룹(default)
+- 스토리지 구성 : 8GiB gp2
 
-- 2.1.1. 컴퓨팅 정의
-  - 컴퓨팅(computing) : 계산하고 답을 구하고 추정하는 행위
-  - 서버(server) : 컴퓨팅을 목적으로 특화된 장비(device)
-  - 워크로드(workload) : 컴퓨팅 리소스의 처리 작업
-- 2.1.2. AWS 컴퓨팅 서비스
-  - AWS 컴퓨팅 서비스 : 퍼블릭 클라우드에서 컴퓨팅 자원을 활용하여 워크로드를 수행하는 서비스
-  - EC2(Elastic Compute Cloud) : 클라우드 환경에서 인스턴스(instance) 라는 가상 머신(Virtual Machine; VM) 형태로 서버 자원을 제공
-  - ECS(Elastic Container Service) : EC2 기반 클러스터에서 실행되는 컨테이너의 배포, 스케줄링(scheduling), 스케일링(scaling) 서비스
-  - Lambda : 서버리스(serverless) 컴퓨팅 서비스
-    - 서버리스 : 서버 설정 없이 환경만 제공. 코드만 실행
-  - Lightsail : 독립적 환경 제공 컴퓨팅 서비스
+### 2.3.2. SSH 로 EC2 인스턴스에 접속하여 웹 서비스 설정하기
 
-### 2.2. Amazon EC2 소개 (39p~)
+- SSH 접속
+  - 터미널 -> 키 페어 파일 폴더로 이동
+  - `ssh -i [키 이름] ec2-user@[public IP]`
+  - 주의 : 보안 그룹 인바운드 규칙에 ssh 내 IP 추가
+- 샘플 웹서비스 배포
+  - 관리자 권한으로 변경 : `sudo su -`
+  - http 데몬 설치 : `yum install httpd -y`
+  - http 데몬 실행 : `systemctl start httpd`
+  - 웹 서비스 내려받기
 
-- Amazon EC2(Amazon Elastic Compute Cloud) : AWS 에서 제공하는 가상 서버
-  - Elastic : '탄력적인'. 컴퓨팅 자원을 온디맨드로 사용 가능
-  - AMI(Amazon Machine Image) : EC2 에서 필요한 소프트웨어 정보 정의
-- 2.2.1. Amazon EC2 인스턴스
-  - 인스턴스 유형 (t2.micro)
-    - t : 인스턴스 패밀리. 용도별 분류
-    - 2 : 인스턴스 세대. 높을수록 최신 세대(성능 우수)
-    - micro : 인스턴스 크기. 클수록 용량과 가격 증가
-  - 인스턴스 상태
-    - 인스턴스 시작 : 대기 중(pending) -> 실행 중(running)
-    - 실행 중인 인스턴스 중지 : 실행 중 -> 중지 중(stopping) -> 중지됨(stopped)
-    - 중지된 인스턴스 시작 : 중지됨 -> 대기 중 -> 실행 중(running)
-    - 중지된 인스턴스 종료 : 중지됨 -> 종료 중(shutting-down) -> 종료됨(terminated)
-    - 실행 중인 인스턴스 종료 : 실행 중 -> 종료 중 -> 종료됨
-- 2.2.2. AMI
-  - AMI : 인스턴스 시작시 운영 체제와 소프트웨어 구성을 제공하는 템플릿
-- 2.2.3. Amazon EC2 스토리지
-  - 스토리지(storage) : 데이터 저장 공간
-    - 인스턴스 스토어(instance store)
-      - 인스턴스에 바로 붙어 있는 저장소(기본 생성. 임시 저장소)
-      - 빠른 I/O(Input/Output)
-      - 인스턴스 중지 또는 종료시 저장된 데이터 모두 손실
-    - Amazon EBS(Elastic Block Store)
-      - 네트워킹을 통해 인스턴스와 EBS 연결된 구조
-- 2.2.4. Amazon EC2 네트워킹
-  - Amazon VPC(Virtual Private Cloud) : 가상의 클라우드 네트워크 
-    - EC2 인스턴스는 VPC 내부에 생성되어 네트워킹
-  - ENI(Elastic Network Interface) : 네트워크 인터페이스
-    - VPC 내 생성되는 가상의 네트워크 어댑터
-  - IP(Internet Protocol) 주소
-    - 공인 IP(public IP) : 외부 구간의 통신을 위한 IP
-    - 사설 IP(private IP) : 내부 구간의 통신을 위한 IP
-- 2.2.5. Amazon EC2 보안
-  - 보안 그룹(security group) : 가상의 방화벽
-    - 인바운드(inbound) : 인스턴스 기준으로 수신 트래픽 규칙
-    - 아웃바운드(outbound) : 인스턴스 기준으로 송신 트래픽 규칙
-  - 키 페어(key pair) : 인스턴스에 연결할 때 자격을 증명하는 보안 키
-    - 퍼블릭 키(public key) : 인스턴스에 저장
-    - 프라이빗 키(private) : 사용자 컴퓨터에 저장
-- 2.2.6. Amazon EC2 모니터링
-  - 수동 모니터링 도구
-    - Amazon EC2 대시보드
-    - Amazon CloudWatch
-  - 자동 모니터링 도구
-    - Amazon CloudWatch
-    - Amazon SNS(Simple Notification Service)
-- 2.2.7. Amazon EC2 구입 옵션
-  - 온디맨드 인스턴스 : 시작하는 인스턴스 비용을 초 단위로 지불
-  - Saving Plans : 1년 또는 3년 동안 시간당 비용 약정(일관된 컴퓨팅 사용량)
-  - 예약 인스턴스 : 1년 또는 3년 동안 인스턴스 유형과 리전 약정(일관된 인스턴스)
-  - 스팟 인스턴스 : 미사용 중인 인스턴스에 대해 경매 방식으로 할당
+### 2.3.3. EC2 인스턴스에 생성된 웹 서비스 접속하기
 
-### 2.3. (실습) Amazon EC2 인스턴스 배포 및 접근하기 (50p~)
+- 주의 : 보안 그룹 인바운드 규칙에 http 내 IP 추가
+- 브라우저에서 public ip 주소로 접속
 
-- 준비 : SSH(Secure SHell)
-- EC2 키 페어 내려받기 : EC2 -> 네트워크 및 보안 -> 키 페어 -> 키 페어 생성
-- 2.3.1. AMI 를 이용한 EC2 인스턴스 배포하기
-  - EC2 대시보드 -> 인스턴스 시작
-  - AMI : Amazon Linux 2 AMI (HVM)
-  - 인스턴스 유형 : t2.micro
-  - 키 페어 : 위에서 생성한 키 페어
-  - 네트워크 설정 : 기본 보안 그룹(default)
-  - 스토리지 구성 : 8GiB gp2
-- 2.3.2. SSH 로 EC2 인스턴스에 접속하여 웹 서비스 설정하기
-  - SSH 접속
-    - 터미널 -> 키 페어 파일 폴더로 이동
-    - `ssh -i [키 이름] ec2-user@[public IP]`
-    - 주의 : 보안 그룹 인바운드 규칙에 ssh 내 IP 추가
-  - 샘플 웹서비스 배포
-    - 관리자 권한으로 변경 : `sudo su -`
-    - http 데몬 설치 : `yum install httpd -y`
-    - http 데몬 실행 : `systemctl start httpd`
-    - 웹 서비스 내려받기
-- 2.3.3. EC2 인스턴스에 생성된 웹 서비스 접속하기
-  - 주의 : 보안 그룹 인바운드 규칙에 http 내 IP 추가
-  - 브라우저에서 public ip 주소로 접속
-- 2.3.4. EC2 인스턴스의 모니터링 설정하기
-  - 수동 모니터링
-    - EC2 -> 모니터링 탭
-    - EC2 -> 모니터링 -> 대시보드에 추가 -> 새 대시보드 생성 -> CloudWatch 대시보드 생성
-  - 자동 모니터링
-    - EC2 -> 모니터링 탭 -> 세부 모니터링 관리 -> 활성화 체크 -> 저장
-    - CloudWatch -> 경보 생성 -> 지표 선택 -> 그래프로 표시된 지표
-      - ec2 이름 / 'CPUUtilization' 지표 선택
-      - 그래프로 표시된 옵션 탭 -> 기간 '1분'
-      - 옵션 탭 -> 위젯 유형 '누적 면적' -> 지표 선택
-      - 조건
-        - 임계값 유형 : 정적
-        - 경보 조건 : 보다 큼
-        - ...보다 : 50
-        - 추가 구성 -> 누락된 데이터 처리 : 누락된 데이터를 양호(임계값 위반 안 함)(으)로 처리
-      - 작업 구성
+### 2.3.4. EC2 인스턴스의 모니터링 설정하기
+
+- 수동 모니터링
+  - EC2 -> 모니터링 탭
+  - EC2 -> 모니터링 -> 대시보드에 추가 -> 새 대시보드 생성 -> CloudWatch 대시보드 생성
+- 자동 모니터링
+  - EC2 -> 모니터링 탭 -> 세부 모니터링 관리 -> 활성화 체크 -> 저장
+  - CloudWatch -> 경보 생성 -> 지표 선택 -> 그래프로 표시된 지표
+    - ec2 이름 / 'CPUUtilization' 지표 선택
+    - 그래프로 표시된 옵션 탭 -> 기간 '1분'
+    - 옵션 탭 -> 위젯 유형 '누적 면적' -> 지표 선택
+    - 조건
+      - 임계값 유형 : 정적
+      - 경보 조건 : 보다 큼
+      - ...보다 : 50
+      - 추가 구성 -> 누락된 데이터 처리 : 누락된 데이터를 양호(임계값 위반 안 함)(으)로 처리
+    - 작업 구성
+      - 경보 상태 트리거 : 경보 상태
+      - SNS 주제 선택 : 새 주제 생성
+        - 새 주제 생성 : EC2_CPU_High_Alarm
+      - 알림을 수신할 이메일 엔드포인트 : gigyesik@gmail.com
+      - EC2 작업
         - 경보 상태 트리거 : 경보 상태
-        - SNS 주제 선택 : 새 주제 생성
-          - 새 주제 생성 : EC2_CPU_High_Alarm
-        - 알림을 수신할 이메일 엔드포인트 : gigyesik@gmail.com
-        - EC2 작업
-          - 경보 상태 트리거 : 경보 상태
-          - 다음 작업 수행 : 이 인스턴스 재부팅
-      - 이름 및 설명 추가 -> 경보 이름 : ec2_test_CPU_High_Alarm
-    - EC2 에 부하 발생시키기
-      - 부하 설정 툴 설치
-        - `amazon-linux-extras install -y epel`
-        - `yum install -y stress-ng`
-      - 부하 70% 발생
-        - `stress-ng --cpu 1 --cpu-load 70% --timeout 10m --metrics --times --verify`
-    - 메일 전송 후 재부팅됨
-- 2.3.5. (번외) 리눅스 명령어를 사용하여 EC2 인스턴스 정보 확인하기
-  - CPU 정보 확인 : `cat /proc/cpuinfo | grep name`
-  - 메모리 용량 확인 : `cat /proc/meminfo | grep MemTotal`
-  - 프라이빗 IP 주소 확인 : `ip -br -c addr show eth0`
-  - 퍼블릭 IP 주소 확인 : `curl ipinfo.ip/ip`
-  - 스토리지 확인(EBS 볼륨) : `lsblk`, `df -hT -t xfs`
-- 2.3.6 실습을 위해 생성된 모든 자원 삭제하기
-  - EC2 -> 인스턴스 -> 인스턴스 종료
-  - CloudWatch -> 모든 경보 -> 작업 -> 삭제
+        - 다음 작업 수행 : 이 인스턴스 재부팅
+    - 이름 및 설명 추가 -> 경보 이름 : ec2_test_CPU_High_Alarm
+  - EC2 에 부하 발생시키기
+    - 부하 설정 툴 설치
+      - `amazon-linux-extras install -y epel`
+      - `yum install -y stress-ng`
+    - 부하 70% 발생
+      - `stress-ng --cpu 1 --cpu-load 70% --timeout 10m --metrics --times --verify`
+  - 메일 전송 후 재부팅됨
+
+### 2.3.5. (번외) 리눅스 명령어를 사용하여 EC2 인스턴스 정보 확인하기
+
+- CPU 정보 확인 : `cat /proc/cpuinfo | grep name`
+- 메모리 용량 확인 : `cat /proc/meminfo | grep MemTotal`
+- 프라이빗 IP 주소 확인 : `ip -br -c addr show eth0`
+- 퍼블릭 IP 주소 확인 : `curl ipinfo.ip/ip`
+- 스토리지 확인(EBS 볼륨) : `lsblk`, `df -hT -t xfs`
+
+### 2.3.6 실습을 위해 생성된 모든 자원 삭제하기
+
+- EC2 -> 인스턴스 -> 인스턴스 종료
+- CloudWatch -> 모든 경보 -> 작업 -> 삭제
 
 ## 3장. AWS 네트워킹 서비스 (71p~)
 
