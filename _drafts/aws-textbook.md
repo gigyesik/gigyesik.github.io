@@ -85,314 +85,195 @@
 - EC2 -> 인스턴스 -> 인스턴스 종료
 - CloudWatch -> 모든 경보 -> 작업 -> 삭제
 
-## 3장. AWS 네트워킹 서비스 (71p~)
+## 3.4. (실습) Amazon VPC 로 퍼블릭 및 프라이빗 서브넷 구성하기 (92p~)
 
-### 3.1. 네트워킹이란 (72p~)
+### 3.4.1. 사용자 VPC 생성하기 (94p~)
 
-- 3.1.1. 네트워킹 정의
-  - 네트워킹(networking) : IT 자원간 연결하여 통신하는 환경
-- 3.2.2. 네트워킹 요소
-  - OSI 7계층
-    - 1계층 
-      - 물리 계층(physical layer)
-      - ex. 1000BASE-TX
-    - 2계층
-      - 데이터링크 계층(data link layer)
-      - ex. Ethernet, MAC
-    - 3계층
-      - 네트워크 계층(network layer)
-      - ex. IP, ICMP
-    - 4계층
-      - 전송 계층(transport layer)
-      - ex. TCP, UDP
-    - 5계층
-      - 세션 계층(session layer)
-      - ex. SSL, TLS
-    - 6계층
-      - 표현 계층(presentation layer)
-      - ex. ASCII, JPG
-    - 7계층
-      - 응용 계층(application layer)
-      - ex. HTTP, SSH, DNT, FTP
-  - IP 주소와 서브넷
-    - IP(Internet Protocol) 주소 : 인터넷상에서 IP 자원을 식별하는 고유한 주소
-      - 퍼블릭 IP 주소 : 인터넷 서비스 공급자(ISP) 에서 제공하는 공인 IP 주소
-      - 프라이빗 IP 주소 : 독립된 네트워크 내부에서만 사용하는 네트워크 관리자가 제공하는 사설 IP 주소
-        - 클래스 A : 10.0.0.0 ~ 10.255.255.255
-        - 클래스 B : 172.16.0.0 ~  172.31.255.255
-        - 클래스 C : 192.168.0.0 ~ 192.168.255.255
-      - 고정 IP 주소 : 네트워크 관리자가 수동으로 할당
-      - 유동 IP 주소 : IP 주소 범위에 따라 동적으로 할당
-        - DHCP(Dynamic Host Configuration Protocol) 를 통해 임대하는 방식으로 할당
-    - 서브넷(subnet) : 부분 네트워크
-      - 서브넷 마스크(subnet mask) : 서브넷 식별값
-        - 1은 네트워크 영역, 0은 호스트 영역 (255.255.255.0)
-      - IP CIDR(Classless Inter Domain Routing) : IP 주소 + 네트워크 ID 비트 수
-        - ex. 10.1.0.0/16
-  - 라우팅과 라우터
-    - 라우팅(routing) : 네트워킹 시 목적지 경로를 선택하는 작업
-    - 라우터(router) : 라우팅을 수행하는 장비
-  - TCP 와 UDP
-    - TCP(Transmission Control Protocol)
-      - 연결형 프로토콜
-      - 신뢰성 높음, 속도 낮음
-      - 혼잡 제어, 흐름 제어
-      - HTTP, SSH
-    - UDP(User Diagram Protocol)
-      - 비연결형 프로토콜
-      - 신뢰성 낮음, 속도 빠름
-      - 제어 없음
-      - DNS, DHCP
-    - 포트 번호
-      - IANA(Internet Assigned Numbers Authority) 에서 관리
-      - well-known port : 0~1023
-      - registered port : 1024~49151
-      - dynamic port : 49152~65535
+- VPC 대시보드에 진입하면 기본 VPC(default VPC) 생성되어 있음
+- 사용자 VPC(custom VPC) 생성
+  - 생성할 리소스 : VPC 만
+  - 이름 태그 : CH3-VPC
+  - IPv4 CIDR 블록 : IPv4 CIDR 수동 입력
+    - IPv4 CIDR : `10.3.0.0/16`
+- VPC 세부 정보
+  - VPC ID : 고유값. 자동 생성
+  - 상태 : Available
+  - 기본 라우팅 테이블 : 자동 생성
+    - 10.3.0.0/16 대상 : local (라우팅 테이블 존재 위치)
+  - 기본 네트워크 ACL : 자동 생성
+    - 인바운드 규칙, 아웃바운드 규칙 : 모든 IP(0.0.0.0/0) 허용이 최상위 규칙(리스트 순회)
+  - 기본 VPC : 아니오 (사용자 VPC)
+  - IPv4 CIDR : 10.3.0.0/16
+- 현재 네트워크 구성
+  - VPC (10.3.0.0/16)
+  - 기본 라우팅 테이블
+    - 10.3.0.0/16 local
+  - 가상 라우터
+  - 기본 네트워크 ACL
 
-### 3.2. AWS 네트워킹 소개 (78p~)
+### 3.4.2. 퍼블릭 서브넷 생성하기 (98p~)
 
-- 3.2.1. AWS 리전 네트워킹 디자인
-  - 리전
-    - 군집화된(clustering) 데이터 센터의 물리적인 위치
-    - 트랜짓 센터(transit center) + 가용 영역(available zone)
-  - Intra-AZ 연결 : 데이터 센터 간 연결
-  - Inter-AZ 연결 : 가용 영역 간 연결
-  - 트랜짓 센터 연결 : 가용 영역과 외부 인터넷 구간 연결
-- 3.2.2. AWS 글로벌 네트워크와 엣지 POP
-  - 엣지 POP(edge Point Of Presence) : AWS 글로벌 전용망
-    - 일반 서비스 : 트랜짓 센터에서 인터넷 구간으로 확산
-    - 엣지 POP 서비스 : 트랜짓 센터에서 AWS 백본 네트워크를 통해 POP 경유하여 AWS 글로벌 네트워크로 확산
-      - Amazon CloudFront, Amazon Route 53, AWS Shield, AWS Global Accelerator
-- 3.2.3. AWS 네트워킹 서비스 소개
-  - VPC : 가상 프라이빗 클라우드 네트워크
-  - Transit Gateway : VPC 와 온프레미스 네트워크 연결 게이트웨이
-  - Route 53 : 관리형 DNS 서비스
-  - Global Accelerator : 가용성 및 성능 증대
-  - Direct Connect : 온프레미스 환경의 AWS 전용 네트워크와 연결
-  - Site-to-Site VPN : 암호화 네트워크(VPN)
+- 서브넷 생성하기
+  - VPC-ID : CH3-VPC
+  - 서브넷 설정
+    - 서브넷 이름 : CH3-Public-Subnet
+    - 가용 영역 : 아시아 태평양(서울) / ap-northeast-2a
+    - IPv4 서브넷 CIDR 블록 : 10.3.1.0/24
+- 서브넷 정보
+  - IPv4 CIDR : 10.3.1.0/24
+  - 가용 영역 : ap-northeast-2a
+  - VPC : CH3-VPC
+  - 라우팅 테이블 : 기본 라우팅 테이블 (VPC 와 같음)
+- 라우팅 테이블 생성하기
+  - 이름 : CH3-Public-RT
+  - VPC : CH3-VPC
+  - 라우팅 상세 정보 -> 서브넷 연결 탭 -> 서브넷 연결 편집 -> CH3-Public-Subnet 선택
+- 인터넷 게이트웨이 생성하기
+  - 이름 : CH3-IGW
+  - 현재 상태 : Detached
+  - 작업 -> VPC 에 연결 -> CH3-VPC 에 연결 (상태 Attached 로 변경)
+- 라우팅 테이블 편집하기
+  - 라우팅 테이블 정보 -> 작업 -> 라우팅 편집
+    - 대상 : 0.0.0.0/0 (전체 트래픽)
+    - 대상 : CH3-IGW
+- 현재 네트워크 구성
+  - VPC (10.3.0.0/16)
+  - 퍼블릭 서브넷 (10.3.1.0/24)
+  - 퍼블릭 라우팅 테이블
+    - 10.3.0.0/16 local
+    - 0.0.0.0/0 CH3-IGW
+  - 가상 라우터
+  - 기본 라우팅 테이블
+  - 인터넷 게이트웨이
 
-### 3.3. Amazon VPC 소개 (82p~)
+### 3.4.3. 퍼블릭 서브넷 통신 확인하기 (109p~)
 
-- Amazon VPC : Virtual Private Cloud
-- 3.3.1. Amazon VPC 기본 구성 요소
-  - VPC 는 리전당 한 개 이상 존재할 수 있고, 리전에 종속적
-  - 서브넷은 VPC 내 일부 네트워크로, 가용 영역에 종속적
-    - 퍼블릭 서브넷 : 외부 인터넷 통신 가능
-    - 프라이빗 서브넷 : 폐쇄적인 네트워크 영역
-  - IP CIDR : 네트워크에 할당할 IP 주소 표현
-    - VPC IP CIDR 내에 서브넷 IP CIDR 이 분할되어 할당됨
-  - 가상 라우터와 라우팅 테이블
-    - VPC 생성시 기본 라우팅 테이블 존재
-    - 별도로 라우팅 테이블 생성하여 서브넷과 연결(attach) 가능
-  - 보안 그룹(security group)과 네트워크 ACL(Access Control List)
-    - 방화벽(firewall). 서브넷의 트래픽 자원 보호
-    - 트래픽 접근 제어 대상
-      - 보안 그룹 : 인스턴스와 같은 자원 접근 제어
-      - 네트워크 ACL : 서브넷 접근 제어
-    - stateful, stateless
-      - 보안 그룹 : 이전 상태 정보 기억(stateful)
-        - 인바운드 트래픽을 허용한 경우 아웃바운드 규칙에 관계없이 접근 허용
-      - 네트워크 ACL : 상태 정보 기억하지 않음(stateless)
-        - 인바운드 트래픽을 허용했어도 아웃바운드 규칙 판단
-    - 허용 및 거부 정책
-      - 보안 그룹 : 허용 규칙에 해당하지 않으면 자동 거부
-      - 네트워크 ACL : 허용 규칙과 거부 규칙 모두 판단
-- 3.3.2. Amazon VPC 와 다른 네트워크 연결
-  - 인터넷 게이트웨이 : 외부 인터넷과 통신
-    - 인터넷 게이트웨이 생성 후 VPC 와 연결
-    - 서브넷 라우팅 테이블의 타깃 대상을 인터넷 게이트웨이로 지정
-  - NAT 게이트웨이(Network Address Translation gateway)
-    - 프라이빗 서브넷과 외부 인터넷 통신
-    - 프라이빗 IP 주소를 퍼블릭 IP 주소로 변환
-    - 퍼블릭 서브넷에 위치
-  - VPC 피어링
-    - 서로 다른 VPC 연결
-    - IP CIDR 중복되면 연결 불가능
-  - 전송 게이트웨이(transit gateway)
-    - 다수의 VPC 나 온프레미스를 단일 지점으로 연결
-  - 가상 프라이빗 게이트웨이(virtual private gateway)
-    - AWS Site-to-Site VPN 또는 AWS Direct Connect 연결
-- 3.3.3. Amazon VPC 요금
-  - 2024년 2월부터 모든 퍼블릭 IP 할당시 유료
-
-### 3.4. (실습) Amazon VPC 로 퍼블릭 및 프라이빗 서브넷 구성하기 (92p~)
-
-- 3.4.1. 사용자 VPC 생성하기 (94p~)
-  - VPC 대시보드에 진입하면 기본 VPC(default VPC) 생성되어 있음
-  - 사용자 VPC(custom VPC) 생성
-    - 생성할 리소스 : VPC 만
-    - 이름 태그 : CH3-VPC
-    - IPv4 CIDR 블록 : IPv4 CIDR 수동 입력
-      - IPv4 CIDR : `10.3.0.0/16`
-  - VPC 세부 정보
-    - VPC ID : 고유값. 자동 생성
-    - 상태 : Available
-    - 기본 라우팅 테이블 : 자동 생성
-      - 10.3.0.0/16 대상 : local (라우팅 테이블 존재 위치)
-    - 기본 네트워크 ACL : 자동 생성
-      - 인바운드 규칙, 아웃바운드 규칙 : 모든 IP(0.0.0.0/0) 허용이 최상위 규칙(리스트 순회)
-    - 기본 VPC : 아니오 (사용자 VPC)
-    - IPv4 CIDR : 10.3.0.0/16
-  - 현재 네트워크 구성
-    - VPC (10.3.0.0/16)
-    - 기본 라우팅 테이블
-      - 10.3.0.0/16 local
-    - 가상 라우터
-    - 기본 네트워크 ACL
-- 3.4.2. 퍼블릭 서브넷 생성하기 (98p~)
-  - 서브넷 생성하기
-    - VPC-ID : CH3-VPC
-    - 서브넷 설정
-      - 서브넷 이름 : CH3-Public-Subnet
-      - 가용 영역 : 아시아 태평양(서울) / ap-northeast-2a
-      - IPv4 서브넷 CIDR 블록 : 10.3.1.0/24
-  - 서브넷 정보
-    - IPv4 CIDR : 10.3.1.0/24
-    - 가용 영역 : ap-northeast-2a
+- 보안 그룹 생성하기
+  - 기본 세부 정보
+    - 보안 그룹 이름 : MY-WEB-SSH-SG
+    - 설명 : 임의
     - VPC : CH3-VPC
-    - 라우팅 테이블 : 기본 라우팅 테이블 (VPC 와 같음)
-  - 라우팅 테이블 생성하기
-    - 이름 : CH3-Public-RT
+  - 인바운드 규칙
+    - HTTP, 내 IP
+    - SSH, 내 IP
+  - 아웃바운드 규칙
+    - 모든 트래픽, 0.0.0.0/0
+- EC2 인스턴스 생성
+  - 이름 : CH3-Public-EC2
+  - 키 페어(로그인) : test-gigyesik
+  - 네트워크 설정 -> 편집
     - VPC : CH3-VPC
-    - 라우팅 상세 정보 -> 서브넷 연결 탭 -> 서브넷 연결 편집 -> CH3-Public-Subnet 선택
-  - 인터넷 게이트웨이 생성하기
-    - 이름 : CH3-IGW
-    - 현재 상태 : Detached
-    - 작업 -> VPC 에 연결 -> CH3-VPC 에 연결 (상태 Attached 로 변경)
-  - 라우팅 테이블 편집하기
-    - 라우팅 테이블 정보 -> 작업 -> 라우팅 편집
-      - 대상 : 0.0.0.0/0 (전체 트래픽)
-      - 대상 : CH3-IGW
-  - 현재 네트워크 구성
-    - VPC (10.3.0.0/16)
-    - 퍼블릭 서브넷 (10.3.1.0/24)
-    - 퍼블릭 라우팅 테이블
-      - 10.3.0.0/16 local
-      - 0.0.0.0/0 CH3-IGW
-    - 가상 라우터
-    - 기본 라우팅 테이블
-    - 인터넷 게이트웨이
-- 3.4.3. 퍼블릭 서브넷 통신 확인하기 (109p~)
-  - 보안 그룹 생성하기
-    - 기본 세부 정보
-      - 보안 그룹 이름 : MY-WEB-SSH-SG
-      - 설명 : 임의
-      - VPC : CH3-VPC
-    - 인바운드 규칙
-      - HTTP, 내 IP
-      - SSH, 내 IP
-    - 아웃바운드 규칙
-      - 모든 트래픽, 0.0.0.0/0
-  - EC2 인스턴스 생성
-    - 이름 : CH3-Public-EC2
-    - 키 페어(로그인) : test-gigyesik
-    - 네트워크 설정 -> 편집
-      - VPC : CH3-VPC
-      - 서브넷 : CH3-Public-Subnet
-      - 퍼블릭 IP 자동 할당 : 활성화
-      - 방화벽(보안 그룹) : 기존 보안 그룹 선택 -> MY-WEB-SSH-SG
-  - EC2 정보 확인 (네트워킹 탭)
-    - 퍼블릭 IPv4 주소
-    - 프라이빗 IPv4 주소
-    - VPC ID : CH3-VPC
-    - 서브넷 ID : CH3-Public-Subnet
-    - 가용 영역 : ap-northeast-2a
-  - EC2 실습 환경 설정하기 (ssh 연결)
-    - `ssh -i [키 파일 이름] ec2-user@[public IP]`
-  - EC2 인스턴스에서 외부 인터넷으로 통신 확인하기 
-    - ping : `ping google.com` -> 성공
-    - http : `curl google.com` -> 성공
-  - 외부 인터넷에서 EC2 인스턴스 통신 확인하기
-    - PC 에서 웹 접근 -> 성공
-    - PC 에서 ping 시도 -> 실패 (http 만 허용)
-    - 스마트폰에서 웹 접근 -> 실패 (IP 다름)
-    - 스마트폰에서 PC와 같은 와이파이 접속 후 접근 -> 성공
-- 3.4.4. 프라이빗 서브넷 생성하기 (116p~)
-  - 서브넷 생성하기
+    - 서브넷 : CH3-Public-Subnet
+    - 퍼블릭 IP 자동 할당 : 활성화
+    - 방화벽(보안 그룹) : 기존 보안 그룹 선택 -> MY-WEB-SSH-SG
+- EC2 정보 확인 (네트워킹 탭)
+  - 퍼블릭 IPv4 주소
+  - 프라이빗 IPv4 주소
+  - VPC ID : CH3-VPC
+  - 서브넷 ID : CH3-Public-Subnet
+  - 가용 영역 : ap-northeast-2a
+- EC2 실습 환경 설정하기 (ssh 연결)
+  - `ssh -i [키 파일 이름] ec2-user@[public IP]`
+- EC2 인스턴스에서 외부 인터넷으로 통신 확인하기 
+  - ping : `ping google.com` -> 성공
+  - http : `curl google.com` -> 성공
+- 외부 인터넷에서 EC2 인스턴스 통신 확인하기
+  - PC 에서 웹 접근 -> 성공
+  - PC 에서 ping 시도 -> 실패 (http 만 허용)
+  - 스마트폰에서 웹 접근 -> 실패 (IP 다름)
+  - 스마트폰에서 PC와 같은 와이파이 접속 후 접근 -> 성공
+
+### 3.4.4. 프라이빗 서브넷 생성하기 (116p~)
+
+- 서브넷 생성하기
+  - VPC : CH3-VPC
+  - 서브넷 설정
+    - 이름 : CH3-Private-Subnet
+    - 가용 영역 : 아시아 태평양(서울) / ap-northeast-2c
+    - IPv4 서브넷 CIDR 블록 : 10.3.2.0/24
+- 라우팅 테이블 생성하기
+  - 이름 : CH3-Private-RT
+  - VPC : CH3-VPC
+  - 서브넷 연결 편집 -> CH3-Private-Subnet
+- NAT 게이트웨이 생성하기
+  - NAT 게이트웨이 설정
+    - 이름 : CH3-NAT-GW
+    - 서브넷 : CH3-Public-Subnet
+    - 연결 유형 : 퍼블릭 (NAT 게이트웨이는 퍼블릭 서브넷 구간에 위치)
+    - 탄력적 IP 할당 (공인 IP 고정)
+- 라우팅 테이블 편집하기
+  - 라우팅 편집 -> 라우팅 추가
+    - 대상 : 0.0.0.0/0
+    - 대상 : NAT 게이트웨이 (CH3-NAT-GW)
+- 현재 네트워크 구성
+  - VPC (10.3.0.0/16)
+  - 퍼블릭 서브넷 (10.3.1.0/24)
+  - 퍼블릭 라우팅 테이블
+    - 10.3.0.0/16 local
+    - 0.0.0.0/0 CH3-IGW
+  - 퍼블릭 EC2, 보안 그룹
+  - NAT 게이트웨이
+  - 프라이빗 서브넷 (10.3.2.0/24)
+  - 프라이빗 라우팅 테이블
+    - 10.3.0.0/16 local
+    - 0.0.0.0/0 CH3-NAT-GW
+  - 가상 라우터
+  - 인터넷 게이트웨이
+
+### 3.4.5. 프라이빗 서브넷 통신 확인하기 (124p~)
+
+- EC2 인스턴스 생성
+  - 이름 : CH3-Private-EC2
+  - 키 페어(로그인) : 키 페어 없이 진행(책에는 설정하라고 되어있지만 connection refused)
+  - 네트워크 설정 -> 편집
     - VPC : CH3-VPC
-    - 서브넷 설정
-      - 이름 : CH3-Private-Subnet
-      - 가용 영역 : 아시아 태평양(서울) / ap-northeast-2c
-      - IPv4 서브넷 CIDR 블록 : 10.3.2.0/24
-  - 라우팅 테이블 생성하기
-    - 이름 : CH3-Private-RT
-    - VPC : CH3-VPC
-    - 서브넷 연결 편집 -> CH3-Private-Subnet
-  - NAT 게이트웨이 생성하기
-    - NAT 게이트웨이 설정
-      - 이름 : CH3-NAT-GW
-      - 서브넷 : CH3-Public-Subnet
-      - 연결 유형 : 퍼블릭 (NAT 게이트웨이는 퍼블릭 서브넷 구간에 위치)
-      - 탄력적 IP 할당 (공인 IP 고정)
-  - 라우팅 테이블 편집하기
-    - 라우팅 편집 -> 라우팅 추가
-      - 대상 : 0.0.0.0/0
-      - 대상 : NAT 게이트웨이 (CH3-NAT-GW)
-  - 현재 네트워크 구성
-    - VPC (10.3.0.0/16)
-    - 퍼블릭 서브넷 (10.3.1.0/24)
-    - 퍼블릭 라우팅 테이블
-      - 10.3.0.0/16 local
-      - 0.0.0.0/0 CH3-IGW
-    - 퍼블릭 EC2, 보안 그룹
-    - NAT 게이트웨이
-    - 프라이빗 서브넷 (10.3.2.0/24)
-    - 프라이빗 라우팅 테이블
-      - 10.3.0.0/16 local
-      - 0.0.0.0/0 CH3-NAT-GW
-    - 가상 라우터
-    - 인터넷 게이트웨이
-- 3.4.5. 프라이빗 서브넷 통신 확인하기 (124p~)
-  - EC2 인스턴스 생성
-    - 이름 : CH3-Private-EC2
-    - 키 페어(로그인) : 키 페어 없이 진행(책에는 설정하라고 되어있지만 connection refused)
-    - 네트워크 설정 -> 편집
-      - VPC : CH3-VPC
-      - 서브넷 : CH3-Private-Subnet
-      - 퍼블릭 IP 자동 할당 : 비활성화
-      - 방화벽(보안 그룹) : 보안 그룹 생성
-    - 고급 세부 정보 -> 사용자 데이터
-      ```Bash
-      #!/bin/bash
-      (
-      echo "qwe123"
-      echo "qwe123"
-      ) | passwd --stdin ec2-user
-      sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
-      systemctl restart sshd
-      ```
-  - 현재 네트워크 구성
-    - VPC (10.3.0.0/16)
-    - 퍼블릭 서브넷 (10.3.1.0/24)
-    - 퍼블릭 라우팅 테이블
-      - 10.3.0.0/16 local
-      - 0.0.0.0/0 CH3-IGW
-    - 퍼블릭 EC2, 보안 그룹
-    - NAT 게이트웨이
-    - 프라이빗 서브넷 (10.3.2.0/24)
-    - 프라이빗 라우팅 테이블
-      - 10.3.0.0/16 local
-      - 0.0.0.0/0 CH3-NAT-GW
-    - 프라이빗 EC2, 보안 그룹
-    - 가상 라우터
-    - 인터넷 게이트웨이
-  - EC2 인스턴스에서 외부 인터넷 통신 확인하기
-    - 먼저 퍼블릭 EC2 인스턴스로 ssh 접근
-      - `ssh -i (키 파일 이름) ec2-user@(퍼블릭 IP)`
-    - 퍼블릭 EC2 에서 프라이빗 EC2 프라이빗 IP 로 접근
-      - `ssh ec2-user@(프라이빗 IP)`
-    - `ping google.com` -> 성공
-    - `curl ipinfo.io/ip` -> 성공
-  - 정리
-    - 퍼블릭 서브넷 -> 외부 인터넷 : 가능
-    - 외부 인터넷 -> 퍼블릭 서브넷 : 가능
-    - 프라이빗 서브넷 -> 외부 인터넷 : 가능
-    - 외부 인터넷 -> 프라이빗 서브넷 : 불가능
-- 3.4.6. 실습을 위해 생성된 모든 자원 삭제하기 (128p~)
-  - EC2 종료
-  - NAT 게이트웨이 삭제
-  - 탄력적 IP 릴리스
-  - VPC 삭제 (하위 구성 자동 삭제됨)
+    - 서브넷 : CH3-Private-Subnet
+    - 퍼블릭 IP 자동 할당 : 비활성화
+    - 방화벽(보안 그룹) : 보안 그룹 생성
+  - 고급 세부 정보 -> 사용자 데이터
+    ```Bash
+    #!/bin/bash
+    (
+    echo "qwe123"
+    echo "qwe123"
+    ) | passwd --stdin ec2-user
+    sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+    systemctl restart sshd
+    ```
+- 현재 네트워크 구성
+  - VPC (10.3.0.0/16)
+  - 퍼블릭 서브넷 (10.3.1.0/24)
+  - 퍼블릭 라우팅 테이블
+    - 10.3.0.0/16 local
+    - 0.0.0.0/0 CH3-IGW
+  - 퍼블릭 EC2, 보안 그룹
+  - NAT 게이트웨이
+  - 프라이빗 서브넷 (10.3.2.0/24)
+  - 프라이빗 라우팅 테이블
+    - 10.3.0.0/16 local
+    - 0.0.0.0/0 CH3-NAT-GW
+  - 프라이빗 EC2, 보안 그룹
+  - 가상 라우터
+  - 인터넷 게이트웨이
+- EC2 인스턴스에서 외부 인터넷 통신 확인하기
+  - 먼저 퍼블릭 EC2 인스턴스로 ssh 접근
+    - `ssh -i (키 파일 이름) ec2-user@(퍼블릭 IP)`
+  - 퍼블릭 EC2 에서 프라이빗 EC2 프라이빗 IP 로 접근
+    - `ssh ec2-user@(프라이빗 IP)`
+  - `ping google.com` -> 성공
+  - `curl ipinfo.io/ip` -> 성공
+- 정리
+  - 퍼블릭 서브넷 -> 외부 인터넷 : 가능
+  - 외부 인터넷 -> 퍼블릭 서브넷 : 가능
+  - 프라이빗 서브넷 -> 외부 인터넷 : 가능
+  - 외부 인터넷 -> 프라이빗 서브넷 : 불가능
+
+### 3.4.6. 실습을 위해 생성된 모든 자원 삭제하기 (128p~)
+
+- EC2 종료
+- NAT 게이트웨이 삭제
+- 탄력적 IP 릴리스
+- VPC 삭제 (하위 구성 자동 삭제됨)
 
 ## 4장. AWS 부하분산 서비스 (131p~)
 
