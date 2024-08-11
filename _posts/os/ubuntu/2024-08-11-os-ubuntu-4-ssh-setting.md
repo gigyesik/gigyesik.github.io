@@ -48,6 +48,9 @@ tag: [os, ubuntu, ssh, netplan]
 - 옵션 변경 후 ssh 서비스 재시작
   - `sudo systemctl restart sshd`
 
+## SSH 접속 로그 확인하기
+
+- `sudo tail -f /var/log/auth.log`
 
 [post-network-ssh-connect-origin]: https://gigyesik.github.io/posts/network-ssh-1-connect-origin/
 [post-os-ubuntu-connect-wifi]: https://gigyesik.github.io/posts/os-ubuntu-3-connect-wifi/
