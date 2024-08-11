@@ -8,7 +8,7 @@ tag: [ubuntu, timezone, utc, kst]
 
 > 포스팅의 내용
 > 
-> - 우분투 PC 의 시간을 utc 에서 kst (utd + 9) 로 변경한다.
+> - 우분투 PC 의 시간을 utc 에서 kst (utc + 9) 로 변경한다.
 > 
 
 # Ubuntu timezone 변경하기
