@@ -1167,7 +1167,7 @@
       - `ping test.gigyesik.click`
     - 레코드 삭제
 
-### 7.3. CND 이란 (307p~)
+### 7.3. CDN 이란 (307p~)
 
 - CDN(Content Delivery Network) : 컨텐츠를 캐싱을 이용해 빠르게 전송하는 기술
 - 7.3.1. CDN 환경
