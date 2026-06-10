@@ -1,0 +1,121 @@
+---
+---
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/* ════════ 기계적 다크 톤 — matrix green ════════ */
+
+:root {
+  --mtx-green: #3ee08a;
+  --mtx-green-bright: #5dffa6;
+  --mono-stack: "JetBrains Mono", "SFMono-Regular", "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+}
+
+html[data-mode="dark"],
+html:not([data-mode]) {
+  /* Framework */
+  --main-bg: #0a0c0b;
+  --mask-bg: #1b1f1d;
+  --main-border-color: #19241e;
+
+  /* Common */
+  --text-color: #aab8b0;
+  --text-muted-color: #6f827a;
+  --text-muted-highlight-color: #9fb3a8;
+  --heading-color: #d6efe0;
+  --link-color: var(--mtx-green);
+  --link-underline-color: #1f7a4d;
+  --blockquote-border-color: #234a36;
+  --blockquote-text-color: #7f9a8c;
+  --button-bg: #121815;
+  --btn-border-color: #1d2b23;
+
+  /* Cards */
+  --card-bg: #101513;
+  --card-header-bg: #141a17;
+  --card-hover-bg: #1a2723;
+  --card-shadow: rgb(0 0 0 / 60%) 0 6px 18px 0,
+    rgb(62 224 138 / 10%) 0 0 0 1px;
+
+  /* Sidebar */
+  --site-title-color: var(--mtx-green);
+  --site-subtitle-color: #6fae8c;
+  --sidebar-bg: #0c100e;
+  --sidebar-border-color: #16201a;
+  --sidebar-muted-color: #6f827a;
+  --sidebar-active-color: var(--mtx-green-bright);
+  --sidebar-hover-bg: #141d18;
+  --sidebar-btn-bg: #121815;
+  --sidebar-btn-color: #5f7a6c;
+
+  /* Topbar / search */
+  --topbar-bg: rgb(10 12 11 / 70%);
+  --search-border-color: #1d2b23;
+  --search-icon-color: #4f6a5c;
+  --input-focus-border-color: #2f7a52;
+
+  /* Posts / misc */
+  --post-list-text-color: #aab8b0;
+  --tag-hover: #1f3a2c;
+  --checkbox-checked-color: var(--mtx-green);
+  --btn-paginator-hover-color: #16201a;
+  --toc-highlight: var(--mtx-green);
+
+  /* Prompt boxes → green family */
+  --prompt-info-bg: rgb(15 50 33 / 80%);
+  --prompt-info-icon-color: var(--mtx-green);
+  --prompt-tip-bg: rgb(18 55 35 / 70%);
+  --prompt-tip-icon-color: #2fd07a;
+}
+
+/* 터미널 톤 — UI·메타 요소만 모노스페이스 (본문 한글 가독성 유지) */
+.site-title,
+.site-subtitle,
+.post-meta,
+.post-tag,
+.post-tail-wrapper .post-meta,
+#page-category,
+#page-tag,
+#access-lastmod a,
+.nav .nav-item {
+  font-family: var(--mono-stack);
+}
+
+.site-title {
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 9px rgb(62 224 138 / 35%);
+}
+
+#core-wrapper a:hover {
+  color: var(--mtx-green-bright);
+}
+
+/* 광고 자리 — 개발 환경 표시용 (production 실제 광고엔 영향 없음) */
+.adsense-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+  border: 1px dashed #2f7a52;
+  border-radius: 6px;
+  color: #4f6a5c;
+  font-family: var(--mono-stack);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: repeating-linear-gradient(
+    45deg,
+    rgb(47 122 82 / 4%),
+    rgb(47 122 82 / 4%) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}

@@ -1,0 +1,24 @@
+{%- comment -%}
+  재사용 광고 단위.
+  사용법: {% include adsense.html slot=site.adsense.slots.post_bottom %}
+  - production + publisher_id + slot 이 모두 있을 때만 실제 광고 렌더
+  - 개발 환경에서는 자리 표시 박스만 보여 레이아웃 확인 가능
+{%- endcomment -%}
+
+{%- assign _slot = include.slot -%}
+
+{%- if jekyll.environment == 'production' -%}
+  {%- if site.adsense.publisher_id and _slot -%}
+    <div class="adsense-unit my-4">
+      <ins class="adsbygoogle"
+        style="display:block"
+        data-ad-client="{{ site.adsense.publisher_id }}"
+        data-ad-slot="{{ _slot }}"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  {%- endif -%}
+{%- else -%}
+  <div class="adsense-placeholder my-4">AD · {{ _slot | default: 'slot 미설정' }}</div>
+{%- endif -%}
