@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+:root {
+	color-scheme: light dark;
+}
+
+pre {
+	overflow-x: auto;
+	padding: 1rem;
+	border-radius: 0.5rem;
+}
