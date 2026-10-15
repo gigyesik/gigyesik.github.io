@@ -1,0 +1,16 @@
+# 의존성, 빌드 결과
+node_modules/
+.next/
+out/
+.velite/
+public/static/
+next-env.d.ts
+*.tsbuildinfo
+
+# OS, IDE
+.DS_Store
+.idea/
+.vscode/
+
+# 로컬 설정
+.env*
