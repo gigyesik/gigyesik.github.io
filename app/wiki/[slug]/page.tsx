@@ -43,9 +43,11 @@ export default async function TermPage({ params }: Props) {
 			</h1>
 			{term.aliases.length > 0 && <p className="mt-1 text-sm text-neutral-500">{term.aliases.join(', ')}</p>}
 			<p className="mt-6 border-l-4 border-neutral-300 pl-4 text-lg dark:border-neutral-700">{term.summary}</p>
-			<div className="prose prose-neutral mt-8 max-w-none dark:prose-invert">
-				<MDXContent code={term.body} />
-			</div>
+			{term.body && (
+				<div className="prose prose-neutral mt-8 max-w-none dark:prose-invert">
+					<MDXContent code={term.body} />
+				</div>
+			)}
 			<p className="mt-6 text-xs text-neutral-500">마지막 수정 {formatDate(term.updated)}</p>
 
 			{related.length > 0 && (
