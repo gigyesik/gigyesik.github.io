@@ -1,6 +1,7 @@
 import * as runtime from 'react/jsx-runtime'
+import { WikiLink } from './wiki-link'
 
-const components = {}
+const components = { WikiLink }
 
 function useMDXComponent(code: string) {
 	const fn = new Function(code)
