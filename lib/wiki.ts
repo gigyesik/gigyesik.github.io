@@ -91,12 +91,13 @@ export function backlinks(slug: string) {
 }
 
 export function searchIndex() {
-	return visibleTerms.map(({ slug, title, aliases, summary, category, status }) => ({
+	return visibleTerms.map(({ slug, title, aliases, summary, category, order, status }) => ({
 		slug,
 		title,
 		aliases,
 		summary,
 		category,
+		order,
 		draft: status === 'draft',
 	}))
 }

@@ -31,6 +31,7 @@ const terms = defineCollection({
 			summary: s.string().max(120),
 			related: s.array(s.string()).default([]),
 			parent: s.string().optional(),
+			order: s.number().int().optional(),
 			status: s.enum(['draft', 'published']),
 			updated: s.isodate(),
 			path: s.path(),

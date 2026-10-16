@@ -2,7 +2,7 @@ export const WIKI_LINK = /\[\[([^[\]|]+)(?:\|([^[\]]+))?\]\]/g
 
 export const RESERVED_SLUGS = ['map']
 
-export const CATEGORIES: Record<string, string> = { invest: '투자', dev: '개발' }
+export const CATEGORIES: Record<string, string> = { scenario: '시나리오', invest: '투자', dev: '개발' }
 
 type NamedTerm = { slug: string; title: string; aliases: string[] }
 
