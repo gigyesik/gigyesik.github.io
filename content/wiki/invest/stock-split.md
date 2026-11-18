@@ -2,9 +2,9 @@
 title: 액면분할
 aliases: [주식분할]
 summary: 액면가를 나눠 1주를 여러 주로 쪼개는 것. 주식 수가 늘고 주가는 그만큼 내려가지만 시가총액, 지분율, 자본금은 그대로다. 무상증자도 주식 수가 늘지만 쌓인 돈을 자본금으로 옮겨 자본금이 늘어나는 것과 다르다. 주가가 너무 비싸 사고팔기 어려울 때 문턱을 낮추려고 한다. 옛 주식을 새 주식으로 바꾸는 며칠 동안 거래정지를 하고, 다시 열리는 날 주식 수와 기준가가 한꺼번에 바뀐다. 치킨집이 500원을 100원으로 5분할하면 120만 주가 600만 주, 5만 원이던 주가는 1만 원이 된다. 반대로 여러 주를 1주로 합치는 것은 액면병합이고, 나눠떨어지지 않는 주식은 현금으로 받는다.
-related: [chicken-shop, par-value, bonus-issue, trading-halt, base-price, market-cap]
+related: [chicken-shop, par-value, bonus-issue, trading-halt, base-price, market-cap, reverse-stock-split]
 parent: par-value
 order: 1430
 status: published
-updated: 2026-11-17
+updated: 2026-11-18
 ---
